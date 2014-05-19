@@ -1,0 +1,12 @@
+{
+  "name": "password-sheriff",
+  "description": "Password policy checker/enforcer.",
+  "version": "0.0.1",
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "mocha": "^1.19.0"
+  },
+  "scripts": {
+    "test": "mocha test.js"
+  }
+}
