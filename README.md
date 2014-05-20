@@ -2,6 +2,8 @@
 
 Password policy enforcer.
 
+**Warning**: This module is work in progress. Not all the features listed here work yet.
+
 ## Install
 
 ```sh
