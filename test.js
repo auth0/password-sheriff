@@ -7,7 +7,7 @@ var nonePolicyDescription = '* Non-empty password required.';
 var lowPolicyDescription = '* 6 characters in length any type.';
 
 var fairPolicyDescription = '* 8 characters in length \n' +
-  '* contain at least 3 of the following 4 types of characters: \n' +
+  '* contain at least 3 of the following 3 types of characters: \n' +
   ' * lower case letters (a-z), \n' +
   ' * upper case letters (A-Z), \n' +
   ' * numbers (i.e. 0-9)';
@@ -44,7 +44,7 @@ describe('password-sheriff', function () {
 
       expect(lowPolicy).to.be.ok;
       expect(fairPolicy).to.be.ok;
-      excellentPolicy(goodPolicy).to.be.ok;
+      expect(goodPolicy).to.be.ok;
       expect(excellentPolicy).to.be.ok;
     });
   });
@@ -81,13 +81,13 @@ describe('password-sheriff', function () {
       });
 
       it('should fail with password length of less than 6 characters', function () {
-        policy.check('');
-        policy.check('hello');
-        policy.check('hellob');
+        expect(policy.check('')).to.be.equal(false);
+        expect(policy.check('helo')).to.be.equal(false);
+        expect(policy.check('hello')).to.be.equal(false);
       });
       it('should work with password length of 6 or more characters', function () {
-        policy.check('mypwd!');
-        policy.check('goodpassword');
+        expect(policy.check('mypwd!')).to.be.equal(true);
+        expect(policy.check('goodpassword')).to.be.equal(true);
       });
     });
 
@@ -103,49 +103,153 @@ describe('password-sheriff', function () {
       });
 
       it('should fail with password length of less than 8 characters', function () {
-        policy.check('');
-        policy.check('hello');
-        policy.check('7charac');
+        expect(policy.check('')).to.be.equal(false);
+        expect(policy.check('hello')).to.be.equal(false);
+        expect(policy.check('7charac')).to.be.equal(false);
       });
 
       it('should fail if password does not contain at least a lower case letter', function () {
-        policy.check('KTHXBYE123');
+        expect(policy.check('KTHXBYE123')).to.be.equal(false);
       });
 
       it('should fail if password does not contain at least an upper case letter', function () {
-        policy.check('123hellogoodbye');
+        expect(policy.check('123hellogoodbye')).to.be.equal(false);
       });
 
       it('should fail if password does not contain at least a number', function () {
-        policy.check('helloGOODBYE');
+        expect(policy.check('helloGOODBYE')).to.be.equal(false);
       });
 
-      it('should work if password meets the previous criteria', function () {
-        policy.check('someP123');
-        policy.check('somePASSWORD123');
+      it('should work if password meets previous criteria', function () {
+        expect(policy.check('someP123')).to.be.equal(false);
+        expect(policy.check('somePASSWORD123')).to.be.equal(false);
       });
     });
 
-    describe('good policy', function () {
-      /* TODO: Write strength level test
-        * 8 characters in length
-        * contain at least 3 of the following 4 types of characters:
-        *  lower case letters (a-z)
-        *  upper case letters (A-Z)
-        *  numbers (i.e. 0-9)
-        *  special characters (e.g. !@#$%^&*)
-        */
+    describe('good policy' + goodPolicyDescription, function () {
+      var policy = createPolicy('good');
+      it('should fail with password length of less than 8 characters', function () {
+        expect(policy.check('')).to.be.equal(false);
+        expect(policy.check('hello')).to.be.equal(false);
+        expect(policy.check('7C arac')).to.be.equal(false);
+      });
+
+      it('should fail if it does contain characters from two groups except lower case chracters', function () {
+        expect(policy.check('HELLO123')).to.be.equal(false);
+        expect(policy.check('HELLO1234BYE')).to.be.equal(false);
+
+        expect(policy.check('!@ HELLO')).to.be.equal(false);
+        expect(policy.check('!@#     HELLO')).to.be.equal(false);
+
+        expect(policy.check('1234!@# ')).to.to.equal(false);
+        expect(policy.check('1234!@# 999')).to.to.equal(false);
+
+      });
+
+      it('should fail if it does contain characters from two groups except upper case characters', function () {
+        expect(policy.check('hello@# ')).to.be.equal(false);
+        expect(policy.check('hello  !@# ')).to.be.equal(false);
+
+        expect(policy.check('1234@# ')).to.be.equal(false);
+        expect(policy.check('1234!@# 123')).to.be.equal(false);
+
+        expect(policy.check('helo1234')).to.be.equal(false);
+        expect(policy.check('hello1234567')).to.be.equal(false);
+      });
+
+      it('should fail if it does contain characters from two groups except numerical characters', function () {
+        expect(policy.check('hello!@# ')).to.be.equal(false);
+        expect(policy.check('hello  !@# ')).to.be.equal(false);
+        
+        expect(policy.check('@# HELLO')).to.be.equal(false);
+        expect(policy.check('!@#     HELLO')).to.be.equal(false);
+
+        expect(policy.check('helloHELLO')).to.be.equal(false);
+        expect(policy.check('helloHELLOBYE')).to.be.equal(false);
+      });
+      
+      it('should fail if it does contain characters from two groups except symbol characters', function () {
+        expect(policy.check('helloHEL')).to.be.equal(false);
+        expect(policy.check('helloHELLOBYE')).to.be.equal(false);
+
+        expect(policy.check('hello123')).to.be.equal(false);
+        expect(policy.check('hello1234567')).to.be.equal(false);
+
+        expect(policy.check('HELLO123')).to.be.equal(false);
+        expect(policy.check('HELLO1234BYE')).to.be.equal(false);
+      });
+
+      it('should work if password meets previous criteria', function () {
+        expect(policy.check('someP1! ')).to.be.equal(true);
+        expect(policy.check('somePASSWORD123!@# ')).to.be.equal(true);
+      });
     });
 
-    describe('excellent policy', function () {
-      /* TODO: Write strength level test
-        * 10 characters in length
-        * contain at least 3 of the following 4 types of characters:
-        *  lower case letters (a-z),
-        *  upper case letters (A-Z),
-        *  numbers (i.e. 0-9),
-        *  special characters (e.g. !@#$%^&*)
-        */
+    describe('excellent policy' + excellentPolicyDescription, function () {
+      var policy = createPolicy('good');
+      it('should fail with password length of less than 10 characters', function () {
+        expect(policy.check('')).to.be.equal(false);
+        expect(policy.check('hello')).to.be.equal(false);
+        expect(policy.check('7C arac#')).to.be.equal(false);
+      });
+
+      it('should fail if it does contain characters from two groups except lower case chracters', function () {
+        expect(policy.check('HELLO12345')).to.be.equal(false);
+        expect(policy.check('HELLO1234BYE')).to.be.equal(false);
+
+        expect(policy.check('!@#  HELLO')).to.be.equal(false);
+        expect(policy.check('!@#     HELLO')).to.be.equal(false);
+
+        expect(policy.check('1234!@#   ')).to.to.equal(false);
+        expect(policy.check('1234!@# 99999')).to.to.equal(false);
+
+      });
+
+      it('should fail if it does contain characters from two groups except upper case characters', function () {
+        expect(policy.check('hello!@#  ')).to.be.equal(false);
+        expect(policy.check('hello  !@#   ')).to.be.equal(false);
+
+        expect(policy.check('1234!@#  ')).to.be.equal(false);
+        expect(policy.check('1234!@#   123')).to.be.equal(false);
+
+        expect(policy.check('hello12345')).to.be.equal(false);
+        expect(policy.check('hello123456789')).to.be.equal(false);
+      });
+
+      it('should fail if it does contain characters from two groups except numerical characters', function () {
+        expect(policy.check('hello!@#  ')).to.be.equal(false);
+        expect(policy.check('hello  !@#  ')).to.be.equal(false);
+        
+        expect(policy.check('!# HELLOBY')).to.be.equal(false);
+        expect(policy.check('!@#     HELLOBYEBYE')).to.be.equal(false);
+
+        expect(policy.check('helloHELLO')).to.be.equal(false);
+        expect(policy.check('helloHELLOBYE')).to.be.equal(false);
+      });
+      
+      it('should fail if it does contain characters from two groups except symbol characters', function () {
+        expect(policy.check('helloHELLO')).to.be.equal(false);
+        expect(policy.check('helloHELLOBYE')).to.be.equal(false);
+
+        expect(policy.check('hello12345')).to.be.equal(false);
+        expect(policy.check('hello1234567')).to.be.equal(false);
+
+        expect(policy.check('HELLO12345')).to.be.equal(false);
+        expect(policy.check('HELLO1234BYE')).to.be.equal(false);
+      });
+
+      it('should fail if it does it repeats a character more than twice', function () {
+        expect(policy.check('hello111hello')).to.be.equal(false);
+      });
+
+      it('should work if password meets previous criteria', function () {
+        expect(policy.check('somePas1! ')).to.be.equal(true);
+        expect(policy.check('somePas!! ')).to.be.equal(true);
+        expect(policy.check('somePas123')).to.be.equal(true);
+        expect(policy.check('some!as123')).to.be.equal(true);
+        expect(policy.check('somePASSWORD123!@# ')).to.be.equal(true);
+      });
+
     });
 
   });
