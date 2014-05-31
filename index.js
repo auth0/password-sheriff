@@ -5,6 +5,20 @@ var specialCharacters = ' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~';
 
 var specialCharactersRegexp = new RegExp(specialCharacters.split('').join('\\|'));
 
+/**
+ * Error thrown when asserting a policy against a password.
+ *
+ * @class PasswordPolicyError
+ * @constructor
+ *
+ * @param {String} msg Descriptive message of the error
+ */
+function PasswordPolicyError(msg) {
+  var err = Error.call(this, msg);
+  err.name = "PasswordPolicyError";
+  return err;
+};
+
 function isString(value) {
   return typeof value === 'string' || value instanceof String;
 }
@@ -76,6 +90,7 @@ module.exports = function (policyName) {
     /** 
      * Checks that a password meets this policy
      *
+     * @method check
      * @param {String} password
      */
     check: function (password) {
@@ -94,17 +109,19 @@ module.exports = function (policyName) {
       return true;
     },
     /**
+     * @method assert
      * Asserts that a passord meets this policy else throws an exception.
      
      * @param {String} password
      */
     assert: function (password) {
       if (!this.check(password)) {
-        throw new Error('Password does not meet password policy');
+        throw new PasswordPolicyError('Password does not meet password policy');
       }
     },
     /**
      * Friendly string representation of the policy
+     * @method toString
      */
     toString: function () {
       return '';
