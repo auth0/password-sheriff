@@ -1,9 +1,4 @@
-var Combinatorics = require('js-combinatorics').Combinatorics;
-
-/* OWASP Special Characters: https://www.owasp.org/index.php/Password_special_characters */
-var specialCharacters = ' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~';
-
-var specialCharactersRegexp = new RegExp(specialCharacters.split('').join('\\|'));
+var specialCharactersRegexp = require('./special_characters');
 
 /**
  * Error thrown when asserting a policy against a password.
@@ -15,68 +10,125 @@ var specialCharactersRegexp = new RegExp(specialCharacters.split('').join('\\|')
  */
 function PasswordPolicyError(msg) {
   var err = Error.call(this, msg);
-  err.name = "PasswordPolicyError";
+  err.name = 'PasswordPolicyError';
   return err;
-};
+}
 
 function isString(value) {
   return typeof value === 'string' || value instanceof String;
 }
 
-function applyCriteriaOverArguments(modifier) {
-  return function () {
-    var criteria = Array.prototype.slice.call(arguments);
-    return function (value) {
-      criteria[modifier](function (criterion) {
-        return (criterion.test && criterion.test(value)) || criterion;
-      });
-    };
-  };
-}
+var rulesToApply = {
+  length: function (options, password) {
+    return options.minLength <= password.length;
+  },
+  contains: function (options, password) {
+    return options.expressions && options.expressions.every(function (expression) {
+      return expression.test(password);
+    });
+  },
+  or: function (options, password) {
+    return options.rules.some(function (ruleOptions) {
+      var rule = rulesToApply[ruleOptions.name];
 
-var or  = applyCriteriaOverArguments('some');
-var all = applyCriteriaOverArguments('every');
+      // If no rule is set, by default we deny this check
+      if (!rule) {
+        return false;
+      }
 
-function combinationToArray(combination) {
-  var i, result = [];
-
-  if (!combination || !combination.sizeOf) {
-    return result;
+      return rule(ruleOptions, password);
+    });
   }
-
-  var combinationSize = combination.sizeOf();
-
-  for(i = 0; i < combinationSize; i++) {
-    result.push(combination.next());
-  }
-
-  return result;
-}
+};
 
 var policiesByName = {
   none: {
-    minimumLength: 1
+    rules: [{ name: 'length', minLength: 1 }],
+    description: '* Non-empty password required.'
   },
   low: {
-    minimumLength: 6
+    rules: [{ name: 'length', minLength: 6, }],
+    description: '* 6 characters in length any type.'
   },
   fair: {
-    minimumLength: 8,
-    charactersToCheck: all(/[A-Z]/, /[a-z]/, /[0-9]/)
+    rules: [{ name: 'length', minmLength: 8, }, {
+      name: 'contains',
+      expressions: [/[A-Z]/, /[a-z]/, /[0-9]/],
+    }],
+    description:  '* 8 characters in length \n' +
+      '* contain at least 3 of the following 3 types of characters: \n' +
+      ' * lower case letters (a-z), \n' +
+      ' * upper case letters (A-Z), \n' +
+      ' * numbers (i.e. 0-9)'
   },
   good: {
-    minimumLength: 8,
-    charactersToCheck: or(combinationToArray(
-      Combinatorics.combination([/[a-z]/, /[A-Z]/, /\d/, specialCharactersRegexp], 3)
-    ).map(all))
+    rules: [{ name: 'length', minLength: 8 }, {
+      name: 'or',
+      rules: [{
+        name: 'contains',
+        expressions: [ /[a-z]/, /[A-Z]/, /\d/ ]
+      }, {
+        name: 'contains',
+        expressions: [ /[a-z]/, /[A-Z]/, specialCharactersRegexp ]
+      }, {
+        name: 'contains',
+        expressions: [ /[a-z]/, /\d/, specialCharactersRegexp ]
+      }, {
+        name: 'contains',
+        expressions: [ /[A-Z]/, /\d/, specialCharactersRegexp ]
+      }]
+    }],
+    description: '* 8 characters in length \n' +
+      '* contain at least 3 of the following 4 types of characters: \n' +
+      ' * lower case letters (a-z), \n' +
+      ' * upper case letters (A-Z), \n' +
+      ' * numbers (i.e. 0-9), \n' +
+      ' * special characters (e.g. !@#$%^&*)'
   },
   excellent: {
-    minimumLength: 10,
-    charactersToCheck: or(combinationToArray(
-      Combinatorics.combination([/[a-z]/, /[A-Z]/, /\d/, specialCharactersRegexp], 3)
-    ).map(all))
+    rules: [{ name: 'length', minLength: 10 }, {
+      name: 'or',
+      rules: [{
+        name: 'contains',
+        expressions: [ /[a-z]/, /[A-Z]/, /\d/ ]
+      }, {
+        name: 'contains',
+        expressions: [ /[a-z]/, /[A-Z]/, specialCharactersRegexp ]
+      }, {
+        name: 'contains',
+        expressions: [ /[a-z]/, /\d/, specialCharactersRegexp ]
+      }, {
+        name: 'contains',
+        expressions: [ /[A-Z]/, /\d/, specialCharactersRegexp ]
+      }]
+    }],
+    description: '* 10 characters in length \n' +
+      '* contain at least 3 of the following 4 types of characters: \n' +
+      ' * lower case letters (a-z), \n' +
+      ' * upper case letters (A-Z), \n' +
+      ' * numbers (i.e. 0-9), \n' +
+      ' * special characters (e.g. !@#$%^&*)'
   }
 };
+
+function applyRules(policy, password) {
+  return policy.rules.reduce(function (result, ruleOptions) {
+    // If previous result was false as this an &&, then nothing to do here!
+    if (!result) {
+      return false;
+    }
+
+    var rule = rulesToApply[ruleOptions.name];
+
+    if (!rule) {
+      return false;
+    }
+
+    return rule(ruleOptions, password);
+  }, true);
+}
+
+module.exports.specialCharactersRegexp = specialCharactersRegexp;
 
 /**
  * Creates a password policy.
@@ -98,15 +150,7 @@ module.exports = function (policyName) {
         return false;
       }
 
-      if (password.length < policy.minimumLength) {
-        return false;
-      }
-
-      if (policy.charactersToCheck && !policy.charactersToCheck(password) ) {
-        return false;
-      }
-
-      return true;
+      return applyRules(policy, password);
     },
     /**
      * @method assert
@@ -124,7 +168,7 @@ module.exports = function (policyName) {
      * @method toString
      */
     toString: function () {
-      return '';
+      return policy.description;
     }
   };
 };
