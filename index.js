@@ -38,6 +38,24 @@ var rulesToApply = {
 
       return rule(ruleOptions, password);
     });
+  },
+  identicalChars: function (options, password) {
+    var i, current = {c: null, count: 0};
+
+    for (i = 0; i < password.length; i++) {
+      if (current.c !== password[i]) {
+        current.c = password[i];
+        current.count = 1;
+      } else {
+        current.count++;
+      }
+
+      if (current.count > options.max) {
+        return false;
+      }
+    }
+
+    return true;
   }
 };
 
@@ -101,13 +119,17 @@ var policiesByName = {
         name: 'contains',
         expressions: [ /[A-Z]/, /\d/, specialCharactersRegexp ]
       }]
+    }, {
+      name: 'identicalChars',
+      max: 2
     }],
     description: '* 10 characters in length \n' +
       '* contain at least 3 of the following 4 types of characters: \n' +
       ' * lower case letters (a-z), \n' +
       ' * upper case letters (A-Z), \n' +
       ' * numbers (i.e. 0-9), \n' +
-      ' * special characters (e.g. !@#$%^&*)'
+      ' * special characters (e.g. !@#$%^&*)\n' +
+      '* not more than 2 identical characters in a row (e.g., 111 not allowed)'
   }
 };
 

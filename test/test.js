@@ -1,6 +1,7 @@
 var expect = require('chai').expect;
 
 var createPolicy = require('../index');
+var specialCharactersRegexp = require('../lib/special_characters');
 
 var nonePolicyDescription = '* Non-empty password required.';
 
@@ -24,9 +25,36 @@ var excellentPolicyDescription = '* 10 characters in length \n' +
   ' * lower case letters (a-z), \n' +
   ' * upper case letters (A-Z), \n' +
   ' * numbers (i.e. 0-9), \n' +
-  ' * special characters (e.g. !@#$%^&*)';
+  ' * special characters (e.g. !@#$%^&*)\n' +
+  '* not more than 2 identical characters in a row (e.g., 111 not allowed)';
 
 describe('password-sheriff', function () {
+  describe('specialCharactersRegexp', function () {
+    it('should handle all OWASP symbols correctly', function () {
+      var symbols = [' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_','`','{','|', '}','~'];
+
+      expect(symbols.every(function (symbol) {
+        var value = specialCharactersRegexp.test(symbol);
+        if (!value) {
+          throw symbol;
+        }
+        return specialCharactersRegexp.test(symbol);
+      })).to.equal(true);
+    });
+
+    it('should not handle characters that are non-symbols', function () {
+      var alphanum = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
+
+      expect(alphanum.some(function (symbol) {
+        var value = specialCharactersRegexp.test(symbol);
+        if (value) {
+          throw symbol;
+        }
+        return specialCharactersRegexp.test(symbol);
+      })).to.equal(false);
+    });
+  });
+
   describe('createPolicy', function () {
     it('should support empty and undefined policies', function () {
       var undefinedPolicy = createPolicy(undefined);
@@ -239,7 +267,7 @@ describe('password-sheriff', function () {
       });
 
       it('should fail if it does it repeats a character more than twice', function () {
-        expect(policy.check('hello111hello')).to.be.equal(false);
+        expect(policy.check('hello111HELLO')).to.be.equal(false);
       });
 
       it('should work if password meets previous criteria', function () {
