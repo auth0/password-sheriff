@@ -1,4 +1,4 @@
-var specialCharactersRegexp = require('./special_characters');
+var specialCharactersRegexp = require('./lib/special_characters');
 
 /**
  * Error thrown when asserting a policy against a password.

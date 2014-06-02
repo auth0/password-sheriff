@@ -1,7 +1,7 @@
 var expect = require('chai').expect;
 
 var createPolicy = require('./index');
-var specialCharactersRegexp = require('./special_characters');
+var specialCharactersRegexp = require('./lib/special_characters');
 
 var nonePolicyDescription = '* Non-empty password required.';
 
