@@ -1,6 +1,7 @@
 var expect = require('chai').expect;
 
 var createPolicy = require('./index');
+var specialCharactersRegexp = require('./special_characters');
 
 var nonePolicyDescription = '* Non-empty password required.';
 
@@ -27,6 +28,32 @@ var excellentPolicyDescription = '* 10 characters in length \n' +
   ' * special characters (e.g. !@#$%^&*)';
 
 describe('password-sheriff', function () {
+  describe('specialCharactersRegexp', function () {
+    it('should handle all OWASP symbols correctly', function () {
+      var symbols = [' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_','`','{','|', '}','~'];
+
+      expect(symbols.every(function (symbol) {
+        var value = specialCharactersRegexp.test(symbol);
+        if (!value) {
+          throw symbol;
+        }
+        return specialCharactersRegexp.test(symbol);
+      })).to.equal(true);
+    });
+
+    it('should not handle characters that are non-symbols', function () {
+      var alphanum = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
+
+      expect(alphanum.some(function (symbol) {
+        var value = specialCharactersRegexp.test(symbol);
+        if (value) {
+          throw symbol;
+        }
+        return specialCharactersRegexp.test(symbol);
+      })).to.equal(false);
+    });
+  });
+
   describe('createPolicy', function () {
     it('should support empty and undefined policies', function () {
       var undefinedPolicy = createPolicy(undefined);
@@ -126,7 +153,7 @@ describe('password-sheriff', function () {
       });
     });
 
-    describe('good policy' + goodPolicyDescription, function () {
+    describe('good policy ' + goodPolicyDescription, function () {
       var policy = createPolicy('good');
       it('should fail with password length of less than 8 characters', function () {
         expect(policy.check('')).to.be.equal(false);
@@ -186,7 +213,7 @@ describe('password-sheriff', function () {
     });
 
     describe('excellent policy' + excellentPolicyDescription, function () {
-      var policy = createPolicy('good');
+      var policy = createPolicy('excellent');
       it('should fail with password length of less than 10 characters', function () {
         expect(policy.check('')).to.be.equal(false);
         expect(policy.check('hello')).to.be.equal(false);
@@ -257,12 +284,12 @@ describe('password-sheriff', function () {
   describe('assert', function () {
     it('should throw an exception when policy check fails', function () {
       var policy = createPolicy(undefined);
-      expect(function () { policy.assert(''); }).to.throw(/PasswordPolicyError/);
+      expect(function () { policy.assert(''); }).to.throw(/Password does not meet password policy/);
     });
 
     it('should not thrown an exception when policy check passes', function () {
       var policy = createPolicy(undefined);
-      expect(function () { policy.assert('hello'); }).not.to.throw(/PasswordPolicyError/);
+      expect(function () { policy.assert('hello'); }).not.to.throw(/Password does not meet password policy/);
     });
   });
 
