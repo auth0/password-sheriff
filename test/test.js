@@ -1,7 +1,6 @@
 var expect = require('chai').expect;
 
-var createPolicy = require('./index');
-var specialCharactersRegexp = require('./lib/special_characters');
+var createPolicy = require('../index');
 
 var nonePolicyDescription = '* Non-empty password required.';
 
@@ -28,32 +27,6 @@ var excellentPolicyDescription = '* 10 characters in length \n' +
   ' * special characters (e.g. !@#$%^&*)';
 
 describe('password-sheriff', function () {
-  describe('specialCharactersRegexp', function () {
-    it('should handle all OWASP symbols correctly', function () {
-      var symbols = [' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_','`','{','|', '}','~'];
-
-      expect(symbols.every(function (symbol) {
-        var value = specialCharactersRegexp.test(symbol);
-        if (!value) {
-          throw symbol;
-        }
-        return specialCharactersRegexp.test(symbol);
-      })).to.equal(true);
-    });
-
-    it('should not handle characters that are non-symbols', function () {
-      var alphanum = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
-
-      expect(alphanum.some(function (symbol) {
-        var value = specialCharactersRegexp.test(symbol);
-        if (value) {
-          throw symbol;
-        }
-        return specialCharactersRegexp.test(symbol);
-      })).to.equal(false);
-    });
-  });
-
   describe('createPolicy', function () {
     it('should support empty and undefined policies', function () {
       var undefinedPolicy = createPolicy(undefined);
