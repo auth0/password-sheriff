@@ -2,8 +2,6 @@
 
 Password policy enforcer.
 
-**Warning**: This module is work in progress. Not all the features listed here work yet.
-
 ## Install
 
 ```sh
@@ -14,17 +12,18 @@ npm install password-sheriff
 
 ```js
 var createPolicy = require('password-sheriff');
-var policy = createPolicy({
-  minimum: 6,
-  minUpperCase: 3
-});
+var policy = createPolicy('good');
 
-// Creates a password based on OWASP standard
-var policyOWASP = createPolicy('owasp-3');
+// Creates a password based on OWASP password recommendations
+var policyOWASP = createPolicy('excellent');
 
-// Password should meet the following criteria:
-// * Minimum 6 characters
-// * At least 3 characters should be uppercase
+// Displays the following password criteria:
+// * 8 characters in length
+// * contain at least 3 of the following 4 types of characters:
+//  * lower case letters (a-z),
+//  * upper case letters (A-Z),
+//  * numbers (i.e. 0-9),
+//  * special characters (e.g. !@#$%^&*)
 console.log(policy.toString());
 
 // returns false, it does not meet requirements
@@ -32,7 +31,7 @@ policy.check('hello');
 policy.check('helloAD');
 
 // returns true
-policy.check('helloASD');
+policy.check('helloA1S2D1');
 
 // asserts a password (throws an exception if invalid)
 policy.assert('hello');
