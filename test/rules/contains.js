@@ -1,6 +1,6 @@
 var expect = require('chai').expect;
 
-var contains = require('../../rules/contains');
+var contains = require('../../lib/rules/contains');
 
 var charsets = contains.charsets;
 

@@ -2,7 +2,7 @@ var format = require('util').format;
 
 var expect = require('chai').expect;
 
-var length = require('../../rules/length');
+var length = require('../../lib/rules/length');
 
 var nonEmptyMsg = 'Non-empty password required';
 

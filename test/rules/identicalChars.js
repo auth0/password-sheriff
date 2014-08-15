@@ -2,7 +2,7 @@ var format = require('util').format;
 
 var expect = require('chai').expect;
 
-var identicalChars = require('../../rules/identicalChars');
+var identicalChars = require('../../lib/rules/identicalChars');
 
 var identicalCharsMessage = 'No more than 3 identical characters in a row (e.g., "aaaa" not allowed)';
 

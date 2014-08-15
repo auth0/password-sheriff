@@ -2,7 +2,7 @@ var format = require('util').format;
 
 var expect = require('chai').expect;
 
-var containsAtLeast = require('../../rules/containsAtLeast');
+var containsAtLeast = require('../../lib/rules/containsAtLeast');
 
 var charsets = containsAtLeast.charsets;
 

@@ -1,48 +1,23 @@
-/**
- * Error thrown when asserting a policy against a password.
- *
- * @class PasswordPolicyError
- * @constructor
- *
- * @param {String} msg Descriptive message of the error
- */
-function PasswordPolicyError(msg) {
-  var err = Error.call(this, msg);
-  err.name = 'PasswordPolicyError';
-  return err;
-}
+
+var PasswordPolicyError = require('./lib/policy_error');
 
 function isString(value) {
   return typeof value === 'string' || value instanceof String;
 }
 
-var charsets = require('./rules/contains').charsets;
-
-var rulesToApply = {
-  length:           require('./rules/length'),
-  contains:         require('./rules/contains'),
-  containsAtLeast:  require('./rules/containsAtLeast'),
-  identicalChars:   require('./rules/identicalChars'),
-  // TODO Remove me
-  // // Composed (or) vs Basic (length, contains)
-  // or: function (options, password) {
-  //   return options.rules.some(function (ruleOptions) {
-  //     var rule = rulesToApply[ruleOptions.name];
-
-  //     // If no rule is set, by default we deny this check
-  //     if (!rule) {
-  //       return false;
-  //     }
-
-  //     return rule(ruleOptions, password);
-  //   });
-  // }
-};
+var charsets = require('./lib/rules/contains').charsets;
 
 var upperCase         = charsets.upperCase;
 var lowerCase         = charsets.lowerCase;
 var numbers           = charsets.numbers;
 var specialCharacters = charsets.specialCharacters;
+
+var rulesToApply = {
+  length:           require('./lib/rules/length'),
+  contains:         require('./lib/rules/contains'),
+  containsAtLeast:  require('./lib/rules/containsAtLeast'),
+  identicalChars:   require('./lib/rules/identicalChars'),
+};
 
 
 var policiesByName = {
@@ -112,9 +87,7 @@ function applyRules (policy, password) {
 
 function missing (policy, password) {
   return reducePolicy(policy, function (result, ruleOptions, rule) {
-    result.push(rule.missing(ruleOptions, password));
-
-    return result;
+    return result.concat(rule.missing(ruleOptions, password));
   }, []);
 }
 
@@ -127,6 +100,10 @@ function explain (policy) {
 }
 
 function flatDescriptions (descriptions, index) {
+
+  if (!descriptions.length) {
+    return '';
+  }
 
   function flatSingleDescription (description, index) {
     var spaces = (new Array(index)).join(' ');
@@ -184,6 +161,10 @@ module.exports = function (policyName) {
 
     missing: function (password) {
       return missing(policy, password);
+    },
+
+    missingAsMarkdown: function (password) {
+      return flatDescriptions(missing(policy, password), 1);
     },
 
     explain: function () {
