@@ -1,59 +1,33 @@
 var expect = require('chai').expect;
 
 var createPolicy = require('../index');
-var specialCharactersRegexp = require('../lib/special_characters');
 
-var nonePolicyDescription = '* Non-empty password required.';
+var nonePolicyDescription = '* Non-empty password required';
 
-var lowPolicyDescription = '* 6 characters in length any type.';
+var lowPolicyDescription = '* At least 6 characters in length';
 
-var fairPolicyDescription = '* 8 characters in length \n' +
-  '* contain at least 3 of the following 3 types of characters: \n' +
-  ' * lower case letters (a-z), \n' +
-  ' * upper case letters (A-Z), \n' +
+var fairPolicyDescription = '* At least 8 characters in length\n' +
+  '* Should contain:\n' +
+  ' * lower case letters (a-z)\n' +
+  ' * upper case letters (A-Z)\n' +
   ' * numbers (i.e. 0-9)';
 
-var goodPolicyDescription = '* 8 characters in length \n' +
-  '* contain at least 3 of the following 4 types of characters: \n' +
-  ' * lower case letters (a-z), \n' +
-  ' * upper case letters (A-Z), \n' +
-  ' * numbers (i.e. 0-9), \n' +
+var goodPolicyDescription = '* At least 8 characters in length\n' +
+  '* Contain at least 3 of the following 4 types of characters:\n' +
+  ' * lower case letters (a-z)\n' +
+  ' * upper case letters (A-Z)\n' +
+  ' * numbers (i.e. 0-9)\n' +
   ' * special characters (e.g. !@#$%^&*)';
 
-var excellentPolicyDescription = '* 10 characters in length \n' +
-  '* contain at least 3 of the following 4 types of characters: \n' +
-  ' * lower case letters (a-z), \n' +
-  ' * upper case letters (A-Z), \n' +
-  ' * numbers (i.e. 0-9), \n' +
+var excellentPolicyDescription = '* At least 10 characters in length\n' +
+  '* Contain at least 3 of the following 4 types of characters:\n' +
+  ' * lower case letters (a-z)\n' +
+  ' * upper case letters (A-Z)\n' +
+  ' * numbers (i.e. 0-9)\n' +
   ' * special characters (e.g. !@#$%^&*)\n' +
-  '* not more than 2 identical characters in a row (e.g., 111 not allowed)';
+  '* No more than 2 identical characters in a row (e.g., "aaa" not allowed)';
 
 describe('password-sheriff', function () {
-  describe('specialCharactersRegexp', function () {
-    it('should handle all OWASP symbols correctly', function () {
-      var symbols = [' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_','`','{','|', '}','~'];
-
-      expect(symbols.every(function (symbol) {
-        var value = specialCharactersRegexp.test(symbol);
-        if (!value) {
-          throw symbol;
-        }
-        return specialCharactersRegexp.test(symbol);
-      })).to.equal(true);
-    });
-
-    it('should not handle characters that are non-symbols', function () {
-      var alphanum = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
-
-      expect(alphanum.some(function (symbol) {
-        var value = specialCharactersRegexp.test(symbol);
-        if (value) {
-          throw symbol;
-        }
-        return specialCharactersRegexp.test(symbol);
-      })).to.equal(false);
-    });
-  });
 
   describe('createPolicy', function () {
     it('should support empty and undefined policies', function () {
@@ -149,8 +123,8 @@ describe('password-sheriff', function () {
       });
 
       it('should work if password meets previous criteria', function () {
-        expect(policy.check('someP123')).to.be.equal(false);
-        expect(policy.check('somePASSWORD123')).to.be.equal(false);
+        expect(policy.check('someP123')).to.be.equal(true);
+        expect(policy.check('somePASSWORD123')).to.be.equal(true);
       });
     });
 

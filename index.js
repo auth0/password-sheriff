@@ -1,5 +1,3 @@
-var specialCharactersRegexp = require('./lib/special_characters');
-
 /**
  * Error thrown when asserting a policy against a password.
  *
@@ -18,139 +16,137 @@ function isString(value) {
   return typeof value === 'string' || value instanceof String;
 }
 
+var charsets = require('./rules/contains').charsets;
+
 var rulesToApply = {
-  length: function (options, password) {
-    return options.minLength <= password.length;
-  },
-  contains: function (options, password) {
-    return options.expressions && options.expressions.every(function (expression) {
-      return expression.test(password);
-    });
-  },
-  or: function (options, password) {
-    return options.rules.some(function (ruleOptions) {
-      var rule = rulesToApply[ruleOptions.name];
+  length:           require('./rules/length'),
+  contains:         require('./rules/contains'),
+  containsAtLeast:  require('./rules/containsAtLeast'),
+  identicalChars:   require('./rules/identicalChars'),
+  // TODO Remove me
+  // // Composed (or) vs Basic (length, contains)
+  // or: function (options, password) {
+  //   return options.rules.some(function (ruleOptions) {
+  //     var rule = rulesToApply[ruleOptions.name];
 
-      // If no rule is set, by default we deny this check
-      if (!rule) {
-        return false;
-      }
+  //     // If no rule is set, by default we deny this check
+  //     if (!rule) {
+  //       return false;
+  //     }
 
-      return rule(ruleOptions, password);
-    });
-  },
-  identicalChars: function (options, password) {
-    var i, current = {c: null, count: 0};
-
-    for (i = 0; i < password.length; i++) {
-      if (current.c !== password[i]) {
-        current.c = password[i];
-        current.count = 1;
-      } else {
-        current.count++;
-      }
-
-      if (current.count > options.max) {
-        return false;
-      }
-    }
-
-    return true;
-  }
+  //     return rule(ruleOptions, password);
+  //   });
+  // }
 };
+
+var upperCase         = charsets.upperCase;
+var lowerCase         = charsets.lowerCase;
+var numbers           = charsets.numbers;
+var specialCharacters = charsets.specialCharacters;
+
 
 var policiesByName = {
   none: {
-    rules: [{ name: 'length', minLength: 1 }],
-    description: '* Non-empty password required.'
+    rules: {
+      length: { minLength: 1 }
+    }
   },
   low: {
-    rules: [{ name: 'length', minLength: 6, }],
-    description: '* 6 characters in length any type.'
+    rules: {
+      length: { minLength: 6 }
+    },
   },
   fair: {
-    rules: [{ name: 'length', minmLength: 8, }, {
-      name: 'contains',
-      expressions: [/[A-Z]/, /[a-z]/, /[0-9]/],
-    }],
-    description:  '* 8 characters in length \n' +
-      '* contain at least 3 of the following 3 types of characters: \n' +
-      ' * lower case letters (a-z), \n' +
-      ' * upper case letters (A-Z), \n' +
-      ' * numbers (i.e. 0-9)'
+    rules: {
+      length: { minLength: 8 },
+      contains: {
+        expressions: [lowerCase, upperCase, numbers]
+      }
+    }
   },
   good: {
-    rules: [{ name: 'length', minLength: 8 }, {
-      name: 'or',
-      rules: [{
-        name: 'contains',
-        expressions: [ /[a-z]/, /[A-Z]/, /\d/ ]
-      }, {
-        name: 'contains',
-        expressions: [ /[a-z]/, /[A-Z]/, specialCharactersRegexp ]
-      }, {
-        name: 'contains',
-        expressions: [ /[a-z]/, /\d/, specialCharactersRegexp ]
-      }, {
-        name: 'contains',
-        expressions: [ /[A-Z]/, /\d/, specialCharactersRegexp ]
-      }]
-    }],
-    description: '* 8 characters in length \n' +
-      '* contain at least 3 of the following 4 types of characters: \n' +
-      ' * lower case letters (a-z), \n' +
-      ' * upper case letters (A-Z), \n' +
-      ' * numbers (i.e. 0-9), \n' +
-      ' * special characters (e.g. !@#$%^&*)'
+    rules: {
+      length: { minLength: 8 },
+      containsAtLeast: {
+        atLeast: 3,
+        expressions: [lowerCase, upperCase, numbers, specialCharacters]
+      }
+    }
   },
   excellent: {
-    rules: [{ name: 'length', minLength: 10 }, {
-      name: 'or',
-      rules: [{
-        name: 'contains',
-        expressions: [ /[a-z]/, /[A-Z]/, /\d/ ]
-      }, {
-        name: 'contains',
-        expressions: [ /[a-z]/, /[A-Z]/, specialCharactersRegexp ]
-      }, {
-        name: 'contains',
-        expressions: [ /[a-z]/, /\d/, specialCharactersRegexp ]
-      }, {
-        name: 'contains',
-        expressions: [ /[A-Z]/, /\d/, specialCharactersRegexp ]
-      }]
-    }, {
-      name: 'identicalChars',
-      max: 2
-    }],
-    description: '* 10 characters in length \n' +
-      '* contain at least 3 of the following 4 types of characters: \n' +
-      ' * lower case letters (a-z), \n' +
-      ' * upper case letters (A-Z), \n' +
-      ' * numbers (i.e. 0-9), \n' +
-      ' * special characters (e.g. !@#$%^&*)\n' +
-      '* not more than 2 identical characters in a row (e.g., 111 not allowed)'
+    rules: {
+      length: { minLength: 10 },
+      containsAtLeast: {
+        atLeast: 3,
+        expressions: [lowerCase, upperCase, numbers, specialCharacters]
+      },
+      identicalChars: { max: 2 }
+    }
   }
 };
 
-function applyRules(policy, password) {
-  return policy.rules.reduce(function (result, ruleOptions) {
+function reducePolicy(policy, fn, value) {
+  return Object.keys(policy.rules).reduce(function (result, ruleName) {
+    var ruleOptions = policy.rules[ruleName];
+    var rule = rulesToApply[ruleName];
+
+    return fn(result, ruleOptions, rule);
+
+  }, value);
+}
+
+function applyRules (policy, password) {
+  return reducePolicy(policy, function (result, ruleOptions, rule) {
     // If previous result was false as this an &&, then nothing to do here!
     if (!result) {
       return false;
     }
 
-    var rule = rulesToApply[ruleOptions.name];
-
     if (!rule) {
       return false;
     }
 
-    return rule(ruleOptions, password);
+    return rule.assert(ruleOptions, password);
   }, true);
 }
 
-module.exports.specialCharactersRegexp = specialCharactersRegexp;
+function missing (policy, password) {
+  return reducePolicy(policy, function (result, ruleOptions, rule) {
+    result.push(rule.missing(ruleOptions, password));
+
+    return result;
+  }, []);
+}
+
+function explain (policy) {
+  return reducePolicy(policy, function (result, ruleOptions, rule) {
+    result.push(rule.explain(ruleOptions));
+
+    return result;
+  }, []);
+}
+
+function flatDescriptions (descriptions, index) {
+
+  function flatSingleDescription (description, index) {
+    var spaces = (new Array(index)).join(' ');
+    if (isString(description)) {
+      return spaces + '* ' + description;
+    }
+    return spaces + flatDescriptions(description, index + 1);
+  }
+
+  var firstDescription = flatSingleDescription(descriptions[0], index);
+
+  descriptions = descriptions.slice(1).reduce(function (result, description) {
+    result += '\n' + flatSingleDescription(description, index);
+
+    return result;
+  }, firstDescription);
+
+  return descriptions;
+}
+
 
 /**
  * Creates a password policy.
@@ -185,12 +181,24 @@ module.exports = function (policyName) {
         throw new PasswordPolicyError('Password does not meet password policy');
       }
     },
+
+    missing: function (password) {
+      return missing(policy, password);
+    },
+
+    explain: function () {
+      return explain(policy);
+    },
+
     /**
      * Friendly string representation of the policy
      * @method toString
      */
     toString: function () {
-      return policy.description;
+      var descriptions = this.explain();
+      return flatDescriptions(descriptions, 0);
     }
   };
 };
+
+module.exports.rulesToApply = rulesToApply;
