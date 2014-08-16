@@ -86,14 +86,14 @@ function applyRules (policy, password) {
 
 function missing (policy, password) {
   return reducePolicy(policy, function (result, ruleOptions, rule) {
-    return result.push(rule.missing(ruleOptions, password));
+    result.push(rule.missing(ruleOptions, password));
+    return result;
   }, []);
 }
 
 function explain (policy) {
   return reducePolicy(policy, function (result, ruleOptions, rule) {
     result.push(rule.explain(ruleOptions));
-
     return result;
   }, []);
 }
