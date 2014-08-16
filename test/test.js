@@ -162,14 +162,14 @@ describe('password-sheriff', function () {
       it('should fail if it does contain characters from two groups except numerical characters', function () {
         expect(policy.check('hello!@# ')).to.be.equal(false);
         expect(policy.check('hello  !@# ')).to.be.equal(false);
-        
+
         expect(policy.check('@# HELLO')).to.be.equal(false);
         expect(policy.check('!@#     HELLO')).to.be.equal(false);
 
         expect(policy.check('helloHELLO')).to.be.equal(false);
         expect(policy.check('helloHELLOBYE')).to.be.equal(false);
       });
-      
+
       it('should fail if it does contain characters from two groups except symbol characters', function () {
         expect(policy.check('helloHEL')).to.be.equal(false);
         expect(policy.check('helloHELLOBYE')).to.be.equal(false);
@@ -221,14 +221,14 @@ describe('password-sheriff', function () {
       it('should fail if it does contain characters from two groups except numerical characters', function () {
         expect(policy.check('hello!@#  ')).to.be.equal(false);
         expect(policy.check('hello  !@#  ')).to.be.equal(false);
-        
+
         expect(policy.check('!# HELLOBY')).to.be.equal(false);
         expect(policy.check('!@#     HELLOBYEBYE')).to.be.equal(false);
 
         expect(policy.check('helloHELLO')).to.be.equal(false);
         expect(policy.check('helloHELLOBYE')).to.be.equal(false);
       });
-      
+
       it('should fail if it does contain characters from two groups except symbol characters', function () {
         expect(policy.check('helloHELLO')).to.be.equal(false);
         expect(policy.check('helloHELLOBYE')).to.be.equal(false);
@@ -274,33 +274,33 @@ describe('password-sheriff', function () {
         var policy = createPolicy(undefined);
         expect(policy.toString()).to.equal(nonePolicyDescription);
       });
+    });
 
-      describe('low policy', function () {
-        it('should describe policy correctly', function () {
-          var policy = createPolicy('low');
-          expect(policy.toString()).to.equal(lowPolicyDescription);
-        });
+    describe('low policy', function () {
+      it('should describe policy correctly', function () {
+        var policy = createPolicy('low');
+        expect(policy.toString()).to.equal(lowPolicyDescription);
       });
+    });
 
-      describe('fair policy', function () {
-        it('should describe policy correctly', function () {
-          var policy = createPolicy('fair');
-          expect(policy.toString()).to.equal(fairPolicyDescription);
-        });
+    describe('fair policy', function () {
+      it('should describe policy correctly', function () {
+        var policy = createPolicy('fair');
+        expect(policy.toString()).to.equal(fairPolicyDescription);
       });
+    });
 
-      describe('good policy', function () {
-        it('should describe policy correctly', function () {
-          var policy = createPolicy('good');
-          expect(policy.toString()).to.equal(goodPolicyDescription);
-        });
+    describe('good policy', function () {
+      it('should describe policy correctly', function () {
+        var policy = createPolicy('good');
+        expect(policy.toString()).to.equal(goodPolicyDescription);
       });
+    });
 
-      describe('excellent policy', function () {
-        it('should describe policy correctly', function () {
-          var policy = createPolicy('excellent');
-          expect(policy.toString()).to.equal(excellentPolicyDescription);
-        });
+    describe('excellent policy', function () {
+      it('should describe policy correctly', function () {
+        var policy = createPolicy('excellent');
+        expect(policy.toString()).to.equal(excellentPolicyDescription);
       });
     });
   });

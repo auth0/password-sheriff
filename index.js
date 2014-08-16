@@ -1,4 +1,3 @@
-
 var PasswordPolicyError = require('./lib/policy_error');
 
 function isString(value) {
@@ -87,7 +86,7 @@ function applyRules (policy, password) {
 
 function missing (policy, password) {
   return reducePolicy(policy, function (result, ruleOptions, rule) {
-    return result.concat(rule.missing(ruleOptions, password));
+    return result.push(rule.missing(ruleOptions, password));
   }, []);
 }
 
@@ -106,11 +105,12 @@ function flatDescriptions (descriptions, index) {
   }
 
   function flatSingleDescription (description, index) {
-    var spaces = (new Array(index)).join(' ');
-    if (isString(description)) {
-      return spaces + '* ' + description;
+    var spaces = (new Array(index+1)).join(' ');
+    var result =  spaces + '* ' + description.message;
+    if (description.items) {
+      result += '\n' + spaces + flatDescriptions(description.items, index + 1);
     }
-    return spaces + flatDescriptions(description, index + 1);
+    return result;
   }
 
   var firstDescription = flatSingleDescription(descriptions[0], index);

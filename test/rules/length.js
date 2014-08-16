@@ -4,30 +4,41 @@ var expect = require('chai').expect;
 
 var length = require('../../lib/rules/length');
 
-var nonEmptyMsg = 'Non-empty password required';
+function nonEmptyMsg(verified) {
+  var d = {message: 'Non-empty password required'};
+  if (verified !== undefined) {
+    d.verified = verified;
+  }
+  return d;
+}
 
-function atLeast(x) {
-  return format('At least %d characters in length', x);
+function atLeast(x, verified) {
+  var d = {message: format('At least %d characters in length', x)};
+  if (verified !== undefined) {
+    d.verified = verified;
+  }
+  return d;
 }
 
 describe('"length" rule', function () {
   describe('explain', function () {
     it('should return ["Non-empty password required."] when minLength is 1', function () {
-      expect(length.explain({minLength: 1})).to.be.deep.equal([nonEmptyMsg]);
+      expect(length.explain({minLength: 1})).to.be.deep.equal(nonEmptyMsg());
     });
     it('should return ["At least x characters in length"] when minLength is x', function () {
-      expect(length.explain({minLength: 5})).to.be.deep.equal([atLeast(5)]);
+      expect(length.explain({minLength: 5})).to.be.deep.equal(atLeast(5));
     });
   });
 
   describe('missing', function () {
-    it('should return singleton list with message when fails', function () {
-      expect(length.missing({minLength: 1}, '')).to.be.deep.equal([nonEmptyMsg]);
-      expect(length.missing({minLength: 9}, 'hello')).to.be.deep.equal([atLeast(9)]);
+    it('should return describe missing fields on fail', function () {
+      expect(length.missing({minLength: 1}, '')).to.be.deep.equal(nonEmptyMsg(false));
+      expect(length.missing({minLength: 9}, 'hello')).to.be.deep.equal(atLeast(9, false));
     });
-    it('should return empty list with message when succeeds', function () {
-      expect(length.missing({minLength: 4}, 'hello')).to.be.deep.equal([]);
-      expect(length.missing({minLength: 4}, 'hello:B')).to.be.deep.equal([]);
+    it('should return verified on success', function () {
+      expect(length.missing({minLength: 1}, 'hi')).to.be.deep.equal(nonEmptyMsg(true));
+      expect(length.missing({minLength: 4}, 'hello')).to.be.deep.equal(atLeast(4, true));
+      expect(length.missing({minLength: 4}, 'hello:B')).to.be.deep.equal(atLeast(4, true));
     });
   });
 
