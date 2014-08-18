@@ -1,5 +1,7 @@
 var format = require('util').format;
 
+var _ = require('underscore');
+
 var expect = require('chai').expect;
 
 var containsAtLeast = require('../../lib/rules/containsAtLeast');
@@ -41,7 +43,56 @@ function createOptions(charsets) {
   return {atLeast: 3, expressions: charsets};
 }
 
+function containsAtLeastValidate(atLeast, expressions) {
+  return function () {
+    return containsAtLeast.validate({atLeast: atLeast, expressions: expressions});
+  };
+}
+
 describe('"contains at least" rule', function () {
+
+  describe('validate', function () {
+    it('should fail if atLeast is not a number greater than 0', function () {
+      var errorRegex = /atLeast should be a valid, non-NaN number, greater than 0/;
+
+      expect(containsAtLeastValidate(-34)).to.throw(errorRegex);
+      expect(containsAtLeastValidate(0)).to.throw(errorRegex);
+      expect(containsAtLeastValidate('hello')).to.throw(errorRegex);
+      expect(containsAtLeastValidate(undefined)).to.throw(errorRegex);
+      expect(containsAtLeastValidate(false)).to.throw(errorRegex);
+      expect(containsAtLeastValidate(true)).to.throw(errorRegex);
+    });
+
+    it('should fail if expressions is empty or not an array', function () {
+      var errorRegex = /expressions should be an non-empty array/;
+
+      expect(containsAtLeastValidate(3, [])).to.throw(errorRegex);
+      expect(containsAtLeastValidate(3, undefined)).to.throw(errorRegex);
+      expect(containsAtLeastValidate(3, null)).to.throw(errorRegex);
+      expect(containsAtLeastValidate(3, true)).to.throw(errorRegex);
+    });
+
+    it('should fail if expressions array contains invalid items', function () {
+      var entry = {test: _.identity, explain: _.identity};
+      var errorRegex = /containsAtLeast expressions are invalid: An explain and a test function should be provided/;
+      expect(containsAtLeastValidate(3, [1,2,3])).to.throw(errorRegex);
+      expect(containsAtLeastValidate(3, ['hi', 'bye', 'woot'], entry, entry)).to.throw(errorRegex);
+      expect(containsAtLeastValidate(3, [{test: 'hi', explain: 'bye'}, entry, entry])).to.throw(errorRegex);
+      expect(containsAtLeastValidate(3, [{test: _.identity, explain: 'bye'}, entry, entry])).to.throw(errorRegex);
+    });
+
+    it('should fail if expressions array length is less than atLeast', function () {
+      var errorRegex = /expressions length should be greater than atLeast/;
+      var entry = {test: _.identity, explain: _.identity};
+      expect(containsAtLeastValidate(3, [entry, entry])).to.throw(errorRegex);
+    });
+
+    it('should work otherwise', function () {
+      var entry = {test: _.identity, explain: _.identity};
+      expect(containsAtLeastValidate(3, [entry, entry, entry])).not.to.throw();
+    });
+  });
+
   var explained;
   describe('explain', function () {
     it('should return list with contained expressions', function () {

@@ -14,7 +14,29 @@ function identicalCharsMessage (x, verified) {
   return d;
 }
 
+function identicalCharsValidate (max) {
+  return function () {
+    return identicalChars.validate({max: max});
+  };
+}
+
 describe('"identical characters" rule', function () {
+
+  describe('validate', function () {
+    it ('should fail if max is not a number or less than 1', function () {
+      var errorRegex = /max should be a number greater than 1/;
+
+      expect(identicalCharsValidate(false)).to.throw(errorRegex);
+      expect(identicalCharsValidate(0)).to.throw(errorRegex);
+      expect(identicalCharsValidate('hello')).to.throw(errorRegex);
+      expect(identicalCharsValidate(undefined)).to.throw(errorRegex);
+    });
+    it('should work otherwise', function () {
+      expect(identicalCharsValidate(2)).not.to.throw();
+      expect(identicalCharsValidate(5)).not.to.throw();
+    });
+  });
+
   describe('explain', function () {
     it('should return singleton list with message', function () {
       expect(identicalChars.explain({max: 3})).to.be.deep.equal(identicalCharsMessage(3));

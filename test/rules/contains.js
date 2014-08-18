@@ -1,3 +1,4 @@
+var _ = require('underscore');
 var expect = require('chai').expect;
 
 var contains = require('../../lib/rules/contains');
@@ -34,11 +35,44 @@ function createMissingEntry(items, verified) {
   return d;
 }
 
+function containsValidate (expressions) {
+  return function () {
+    return contains.validate({expressions: expressions});
+  };
+}
+
 describe('"contains" rule', function () {
   describe('explain', function () {
     it('should return list with contained expressions', function () {
       var explained = contains.explain({expressions: upperAndSpecial});
       expect(explained).to.be.deep.equal(createMissingEntry([upperCaseMessage(), specialCharsMessage()]));
+    });
+  });
+
+  describe('validate', function () {
+    it('should fail if expressions is not an array', function () {
+      var errorRegex = /contains expects expressions to be a non-empty array/;
+      expect(containsValidate(null)).to.throw(errorRegex);
+      expect(containsValidate(false)).to.throw(errorRegex);
+      expect(containsValidate(true)).to.throw(errorRegex);
+      expect(containsValidate('hello')).to.throw(errorRegex);
+    });
+
+    it('should fail if expressions array contains invalid items', function () {
+      var errorRegex = /contains expressions are invalid: An explain and a test function should be provided/;
+      expect(containsValidate([1,2,3])).to.throw(errorRegex);
+      expect(containsValidate(['hi'])).to.throw(errorRegex);
+      expect(containsValidate([{test: 'hi', explain: 'bye'}])).to.throw(errorRegex);
+      expect(containsValidate([{test: _.identity, explain: 'bye'}])).to.throw(errorRegex);
+    });
+
+    it('should fail if expressions is an empty array', function () {
+      var errorRegex = /ontains expects expressions to be a non-empty array/;
+      expect(containsValidate([])).to.throw(errorRegex);
+    });
+
+    it('should work otherwise', function () {
+      expect(containsValidate([{test: _.identity, explain: _.identity}])).not.to.throw();
     });
   });
 

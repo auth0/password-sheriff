@@ -20,7 +20,28 @@ function atLeast(x, verified) {
   return d;
 }
 
+function lengthValidate (minLength) {
+  return function () {
+    length.validate({minLength: minLength});
+  };
+}
+
 describe('"length" rule', function () {
+  describe('validate', function () {
+    var errorRegex = /length expects minLength to be a non-zero number/;
+    it('should fail when minLength is not a number or zero', function () {
+      expect(lengthValidate(null)).to.throw(errorRegex);
+      expect(lengthValidate(undefined)).to.throw(errorRegex);
+      expect(lengthValidate(false)).to.throw(errorRegex);
+      expect(lengthValidate(true)).to.throw(errorRegex);
+      expect(lengthValidate('hello')).to.throw(errorRegex);
+      expect(lengthValidate('123')).to.throw(errorRegex);
+    });
+    it('should work otherwise', function () {
+      expect(lengthValidate(123)).not.to.throw(errorRegex);
+    });
+  });
+
   describe('explain', function () {
     it('should return ["Non-empty password required."] when minLength is 1', function () {
       expect(length.explain({minLength: 1})).to.be.deep.equal(nonEmptyMsg());
