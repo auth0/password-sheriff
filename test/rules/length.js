@@ -1,5 +1,3 @@
-var format = require('util').format;
-
 var expect = require('chai').expect;
 
 var length = require('../../lib/rules/length');
@@ -13,7 +11,10 @@ function nonEmptyMsg(verified) {
 }
 
 function atLeast(x, verified) {
-  var d = {message: format('At least %d characters in length', x)};
+  var d = {
+    message: 'At least %d characters in length',
+    format: [x]
+  };
   if (verified !== undefined) {
     d.verified = verified;
   }

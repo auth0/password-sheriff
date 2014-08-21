@@ -1,3 +1,5 @@
+var format = require('util').format;
+
 var PasswordPolicyError = require('./lib/policy_error');
 
 function isString(value) {
@@ -106,7 +108,13 @@ function flatDescriptions (descriptions, index) {
 
   function flatSingleDescription (description, index) {
     var spaces = (new Array(index+1)).join(' ');
-    var result =  spaces + '* ' + description.message;
+    var result = spaces + '* ';
+    if (description.format) {
+      result += format.apply(null, [description.message].concat(description.format));
+    } else {
+      result += description.message;
+    }
+
     if (description.items) {
       result += '\n' + spaces + flatDescriptions(description.items, index + 1);
     }

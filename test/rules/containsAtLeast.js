@@ -1,5 +1,3 @@
-var format = require('util').format;
-
 var _ = require('underscore');
 
 var expect = require('chai').expect;
@@ -10,7 +8,8 @@ var charsets = containsAtLeast.charsets;
 
 function createMissingEntry(x, y, items, verified) {
   var d = {
-    message: format('Contain at least %d of the following %d types of characters:', x, y),
+    message: 'Contain at least %d of the following %d types of characters:',
+    format: [x, y],
     items: items
   };
   if (verified !== undefined) {
