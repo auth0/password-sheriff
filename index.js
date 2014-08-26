@@ -1,5 +1,7 @@
 var format = require('util').format;
 
+var _ = require('underscore');
+
 var PasswordPolicyError = require('./lib/policy_error');
 
 function isString(value) {
@@ -88,9 +90,10 @@ function applyRules (policy, password) {
 
 function missing (policy, password) {
   return reducePolicy(policy, function (result, ruleOptions, rule) {
-    result.push(rule.missing(ruleOptions, password));
+    result.rules.push(rule.missing(ruleOptions, password));
+    result.verified = result.verified && !!rule.verified;
     return result;
-  }, []);
+  }, {rules: [], verified: true});
 }
 
 function explain (policy) {
@@ -132,6 +135,13 @@ function flatDescriptions (descriptions, index) {
   return descriptions;
 }
 
+
+
+_.each(policiesByName, function (policy) {
+  reducePolicy(policy, function (result, ruleOptions, rule) {
+    rule.validate(ruleOptions);
+  }, true);
+});
 
 /**
  * Creates a password policy.
