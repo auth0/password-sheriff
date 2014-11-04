@@ -1,7 +1,7 @@
 {
   "name": "password-sheriff",
   "description": "Password policy checker/enforcer.",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "main": "index.js",
   "devDependencies": {
     "chai": "^1.9.1",
