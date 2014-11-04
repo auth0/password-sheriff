@@ -5,7 +5,7 @@ var identicalChars = require('../../lib/rules/identicalChars');
 function identicalCharsMessage (x, verified) {
   var a = (new Array(x+2)).join('a');
   var msg = 'No more than %d identical characters in a row (e.g., "%s" not allowed)';
-  var d = {message: msg, format: [x, a]};
+  var d = {message: msg, format: [x, a], code: 'identicalChars'};
   if (verified !== undefined) {
     d.verified = verified;
   }

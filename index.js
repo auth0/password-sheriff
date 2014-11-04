@@ -90,8 +90,9 @@ function applyRules (policy, password) {
 
 function missing (policy, password) {
   return reducePolicy(policy, function (result, ruleOptions, rule) {
-    result.rules.push(rule.missing(ruleOptions, password));
-    result.verified = result.verified && !!rule.verified;
+    var missingRule = rule.missing(ruleOptions, password);
+    result.rules.push(missingRule);
+    result.verified = result.verified && !!missingRule.verified;
     return result;
   }, {rules: [], verified: true});
 }

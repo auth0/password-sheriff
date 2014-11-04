@@ -10,14 +10,14 @@ var specialCharactersRegexp = charsets.specialCharacters;
 var upperAndSpecial = [charsets.upperCase, charsets.specialCharacters];
 
 function upperCaseMessage (verified) {
-  var d = {message: 'upper case letters (A-Z)'};
+  var d = {message: 'upper case letters (A-Z)', code: 'upperCase'};
   if (verified !== undefined) {
     d.verified = verified;
   }
   return d;
 }
 function specialCharsMessage (verified) {
-  var d = {message: 'special characters (e.g. !@#$%^&*)'};
+  var d = {message: 'special characters (e.g. !@#$%^&*)', code: 'specialCharacters'};
   if (verified !== undefined) {
     d.verified = verified;
   }
@@ -27,6 +27,7 @@ function specialCharsMessage (verified) {
 function createMissingEntry(items, verified) {
   var d = {
     message: 'Should contain:',
+    code: 'shouldContain',
     items: items
   };
   if (verified !== undefined) {

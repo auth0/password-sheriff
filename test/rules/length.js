@@ -3,7 +3,7 @@ var expect = require('chai').expect;
 var length = require('../../lib/rules/length');
 
 function nonEmptyMsg(verified) {
-  var d = {message: 'Non-empty password required'};
+  var d = {message: 'Non-empty password required', code: 'nonEmpty'};
   if (verified !== undefined) {
     d.verified = verified;
   }
@@ -13,6 +13,7 @@ function nonEmptyMsg(verified) {
 function atLeast(x, verified) {
   var d = {
     message: 'At least %d characters in length',
+    code: 'lengthAtLeast',
     format: [x]
   };
   if (verified !== undefined) {

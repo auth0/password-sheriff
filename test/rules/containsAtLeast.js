@@ -9,6 +9,7 @@ var charsets = containsAtLeast.charsets;
 function createMissingEntry(x, y, items, verified) {
   var d = {
     message: 'Contain at least %d of the following %d types of characters:',
+    code: 'containsAtLeast',
     format: [x, y],
     items: items
   };
@@ -18,9 +19,9 @@ function createMissingEntry(x, y, items, verified) {
   return d;
 }
 
-function generateMessageFn(msg) {
+function generateMessageFn(msg, code) {
   return function (verified) {
-    var d = {message: msg};
+    var d = {message: msg, code: code};
     if (verified !== undefined) {
       d.verified = verified;
     }
@@ -28,10 +29,10 @@ function generateMessageFn(msg) {
   };
 }
 
-var lowerCaseMessage    = generateMessageFn('lower case letters (a-z)');
-var upperCaseMessage    = generateMessageFn('upper case letters (A-Z)');
-var numbersMessage      = generateMessageFn('numbers (i.e. 0-9)');
-var specialCharsMessage = generateMessageFn('special characters (e.g. !@#$%^&*)');
+var lowerCaseMessage    = generateMessageFn('lower case letters (a-z)', 'lowerCase');
+var upperCaseMessage    = generateMessageFn('upper case letters (A-Z)', 'upperCase');
+var numbersMessage      = generateMessageFn('numbers (i.e. 0-9)', 'numbers');
+var specialCharsMessage = generateMessageFn('special characters (e.g. !@#$%^&*)', 'specialCharacters');
 
 function fourMessages (a, b, c, d) {
   return [lowerCaseMessage(a), upperCaseMessage(b), numbersMessage(c), specialCharsMessage(d)];
