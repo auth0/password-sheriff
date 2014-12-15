@@ -14,7 +14,7 @@ npm install password-sheriff
 var createPolicy = require('password-sheriff');
 var policy = createPolicy('good');
 
-// Creates a password based on OWASP password recommendations
+// Creates a password policy based on OWASP password recommendations
 var policyOWASP = createPolicy('excellent');
 
 // Displays the following password criteria:
