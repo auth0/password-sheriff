@@ -1,6 +1,6 @@
 # Password Sheriff
 
-Password policy enforcer.
+Node.js library to enforce password policies.
 
 ## Install
 
@@ -11,31 +11,72 @@ npm install password-sheriff
 ## Usage
 
 ```js
-var createPolicy = require('password-sheriff');
-var policy = createPolicy('good');
+var PasswordPolicy = require('password-sheriff').PasswordPolicy;
 
-// Creates a password policy based on OWASP password recommendations
-var policyOWASP = createPolicy('excellent');
+// Create a length password policy
+var lengthPolicy = new PasswordPolicy({length: {minLength: 6}});
 
-// Displays the following password criteria:
-// * 8 characters in length
-// * contain at least 3 of the following 4 types of characters:
-//  * lower case letters (a-z),
-//  * upper case letters (A-Z),
-//  * numbers (i.e. 0-9),
-//  * special characters (e.g. !@#$%^&*)
-console.log(policy.toString());
+// will throw as the password does not meet criteria
+lengthPolicy.assert('hello');
 
-// returns false, it does not meet requirements
-policy.check('hello');
-policy.check('helloAD');
+// returns false if password does not meet rules
+assert.equal(false, lengthPolicy.check('hello'));
 
-// returns true
-policy.check('helloA1S2D1');
+// explains the policy
+var explained = lengthPolicy.explain();
 
-// asserts a password (throws an exception if invalid)
-policy.assert('hello');
+assert.equal(1, explained.length);
+
+// easier i18n
+assert.equal('lengthAtLeast', explained[0].code);
+assert.equal('At least 6 characters in length',
+             format(explained[0].message, explained[0].format));
 ```
+
+### API
+
+#### Password Rules
+
+Password Rules are objects that implement the following methods:
+
+ * `rule.validate(options)`: method called after the rule was created in order to validate `options` arguments.
+ * `rule.assert(options, password)`: returns true if `password` is valid.
+ * `rule.explain(options)`: returns an object with `code`, `message` and `format` attributes:
+   * `code`: Identifier of the rule. This attribute is meant to aid i18n.
+   * `message`: Description of the rule that must be formatted using `util.format`.
+   * `format`: Array of `string` or `Number` that will be used for the replacements required in `message`.
+ * `rule.missing(options, password)`: returns an object similar to `rule.explain` plus an additional field `verified` that informs whether the password meets the rule.
+
+
+Example of `rule.explain` method:
+
+```js
+FooRule.prototype.explain = function (options) {
+  return {
+    // identifier rule (to make i18n easier)
+    code: 'foo',
+    message: 'Foo should be present at least %d times.',
+    format: [options.count]
+  };
+};
+```
+
+When explained:
+
+```js
+var explained = fooRule.explain({count: 5});
+
+// "Foo should be present at least 5 times"
+util.format(explained.message, explained.format[0]);
+```
+
+
+FooRule.prototype.missing = function (options, password) {
+  var explain = this.explain();
+  explain.verified = this.assert(options, password);
+  return explain;
+};
+
 
 ## Issue Reporting
 
