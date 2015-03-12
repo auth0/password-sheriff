@@ -70,7 +70,7 @@ var explained = fooRule.explain({count: 5});
 util.format(explained.message, explained.format[0]);
 ```
 
-See the [custom-rule example](examples/custom-rule) section for more information.
+See the [custom-rule example](examples/custom-rule.js) section for more information.
 
 #### Built-in Password Rules
 
@@ -109,7 +109,7 @@ Password Sheriff includes some default rules:
   });
   ```
 
-See the [default-rules example](examples/default-rules) section for more information.
+See the [default-rules example](examples/default-rules.js) section for more information.
 
 ## Issue Reporting
 
