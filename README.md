@@ -77,15 +77,17 @@ See the [custom-rule example](examples/custom-rule) section for more information
 Password Sheriff includes some default rules:
 
   * `length`: The minimum amount of characters a password must have.
-    ```js
-    var lengthPolicy = new PasswordPolicy({length: {minLength: 3}});
-    ```
+  ```js
+  var lengthPolicy = new PasswordPolicy({length: {minLength: 3}});
+  ```
+  
   * `contains`:  Password should contain all of the charsets specified. There are 4 predefined charsets: `upperCase`, `lowerCase`, `numbers` and `specialCharacters` (`specialCharacters`are the ones defined in OWASP Password Policy recommendation document).
-    ```js
-    var containsPolicy = new PasswordPolicy({contains: {
-      expressions: [charsets.upperCase, charsets.numbers]
-    }});
-    ```
+  ```js
+  var containsPolicy = new PasswordPolicy({contains: {
+    expressions: [charsets.upperCase, charsets.numbers]
+  }});
+  ```
+  
   * `containsAtLeast`: Passwords should contain at least `atLeast` of a total of `expressions.length` groups.
   ```js
   var charsets = require('../lib/rules/containsAtLeast').charsets;
@@ -97,6 +99,7 @@ Password Sheriff includes some default rules:
     }
   });
   ```
+  
   * `identicalChars`: Passwords should not contain any character repeated continuously `max + 1` times.
   ```js
   var identitcalCharsPolicy = new PasswordPolicy({
