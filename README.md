@@ -1,6 +1,6 @@
 # Password Sheriff
 
-Node.js library to enforce password policies.
+Node.js (and browserify supported) library to enforce password policies.
 
 ## Install
 
