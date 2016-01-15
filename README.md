@@ -80,14 +80,14 @@ Password Sheriff includes some default rules:
   ```js
   var lengthPolicy = new PasswordPolicy({length: {minLength: 3}});
   ```
-  
+
   * `contains`:  Password should contain all of the charsets specified. There are 4 predefined charsets: `upperCase`, `lowerCase`, `numbers` and `specialCharacters` (`specialCharacters`are the ones defined in OWASP Password Policy recommendation document).
   ```js
   var containsPolicy = new PasswordPolicy({contains: {
     expressions: [charsets.upperCase, charsets.numbers]
   }});
   ```
-  
+
   * `containsAtLeast`: Passwords should contain at least `atLeast` of a total of `expressions.length` groups.
   ```js
   var charsets = require('../lib/rules/containsAtLeast').charsets;
@@ -99,7 +99,7 @@ Password Sheriff includes some default rules:
     }
   });
   ```
-  
+
   * `identicalChars`: Passwords should not contain any character repeated continuously `max + 1` times.
   ```js
   var identitcalCharsPolicy = new PasswordPolicy({
@@ -115,3 +115,10 @@ See the [default-rules example](examples/default-rules.js) section for more info
 
 If you have found a bug or if you have a feature request, please report them at this repository issues section. Please do not report security vulnerabilities on the public GitHub issue tracker. The [Responsible Disclosure Program](https://auth0.com/whitehat) details the procedure for disclosing security issues.
 
+## Author
+
+[Auth0](auth0.com)
+
+## License
+
+This project is licensed under the MIT license. See the [LICENSE](LICENSE) file for more info.
