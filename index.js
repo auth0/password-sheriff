@@ -100,4 +100,6 @@ module.exports = function (policyName) {
 
 module.exports.PasswordPolicy = PasswordPolicy;
 
+module.exports.charsets = charsets;
+
 // module.exports.rulesToApply = rulesToApply;
