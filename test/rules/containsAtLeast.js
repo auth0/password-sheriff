@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var _ = require('../../lib/helper');
 
 var expect = require('chai').expect;
 
@@ -129,7 +129,7 @@ describe('"contains at least" rule', function () {
     it('should return an structure with verified == true when fulfilled', function () {
       explained = containsAtLeast.missing(createOptions(fourCharsets), 'helloO9');
       expect(explained).to.be.deep.equal(createMissingEntry(3, 4, fourMessages.apply(null, state[4]), true));
-      
+
       explained = containsAtLeast.missing(createOptions(fourCharsets), 'helloO9!');
       expect(explained).to.be.deep.equal(createMissingEntry(3, 4, fourMessages.apply(null, state[5]), true));
     });
