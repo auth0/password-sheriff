@@ -83,6 +83,8 @@ Password Sheriff includes some default rules:
 
   * `contains`:  Password should contain all of the charsets specified. There are 4 predefined charsets: `upperCase`, `lowerCase`, `numbers` and `specialCharacters` (`specialCharacters`are the ones defined in OWASP Password Policy recommendation document).
   ```js
+  var charsets = require('password-sheriff').charsets;
+
   var containsPolicy = new PasswordPolicy({contains: {
     expressions: [charsets.upperCase, charsets.numbers]
   }});
@@ -90,7 +92,7 @@ Password Sheriff includes some default rules:
 
   * `containsAtLeast`: Passwords should contain at least `atLeast` of a total of `expressions.length` groups.
   ```js
-  var charsets = require('../lib/rules/containsAtLeast').charsets;
+  var charsets = require('password-sheriff').charsets;
 
   var containsAtLeastPolicy = new PasswordPolicy({
     containsAtLeast: {
