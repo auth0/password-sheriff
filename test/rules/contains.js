@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var _ = require('../../lib/helper');
 var expect = require('chai').expect;
 
 var contains = require('../../lib/rules/contains');
@@ -107,7 +107,7 @@ describe('"contains" rule', function () {
       expect(contains.assert({expressions: upperAndSpecial}, 'hellO!')).to.be.equal(true);
     });
   });
-  
+
   describe('specialCharactersRegexp', function () {
     it('should handle all OWASP symbols correctly', function () {
       var symbols = [' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_','`','{','|', '}','~'];
