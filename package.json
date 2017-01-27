@@ -9,7 +9,5 @@
   },
   "scripts": {
     "test": "mocha --recursive"
-  },
-  "dependencies": {
   }
 }
