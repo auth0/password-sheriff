@@ -40,7 +40,7 @@ assert.equal('At least 6 characters in length',
 Password Rules are objects that implement the following methods:
 
  * `rule.validate(options)`: method called after the rule was created in order to validate `options` arguments.
- * `rule.assert(options, password)`: returns true if `password` is valid.
+ * `rule.assert(password)`: returns true if `password` is valid.
  * `rule.explain(options)`: returns an object with `code`, `message` and `format` attributes:
    * `code`: Identifier of the rule. This attribute is meant to aid i18n.
    * `message`: Description of the rule that must be formatted using `util.format`.
