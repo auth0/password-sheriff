@@ -45,7 +45,7 @@ Password Rules are objects that implement the following methods:
    * `code`: Identifier of the rule. This attribute is meant to aid i18n.
    * `message`: Description of the rule that must be formatted using `util.format`.
    * `format`: Array of `string` or `Number` that will be used for the replacements required in `message`.
- * `rule.missing(options, password)`: returns an object similar to `rule.explain` plus an additional field `verified` that informs whether the password meets the rule.
+ * `rule.missing(password)`: returns an object similar to `rule.explain` plus an additional field `verified` that informs whether the password meets the rule.
 
 
 Example of `rule.explain` method:
