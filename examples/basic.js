@@ -1,6 +1,6 @@
 var assert = require('assert');
 
-var format = require('util').format;
+var format = require('../lib/helper').format;
 
 var PasswordPolicy = require('..').PasswordPolicy;
 

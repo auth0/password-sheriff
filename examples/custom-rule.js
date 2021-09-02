@@ -1,7 +1,5 @@
 var assert = require('assert');
 
-var format = require('util').format;
-
 // Custom rules
 
 // Let's create a custom rule named Foo. The rule will enforce that
