@@ -165,3 +165,10 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+
+# TypeScript
+dist/
+*.tsbuildinfo
+
+# Dependencies
+node_modules/

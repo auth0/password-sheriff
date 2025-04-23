@@ -1,9 +1,8 @@
-var _ = require('../../lib/helper');
+var _ = require('../../dist/lib/helper').default;
 var expect = require('chai').expect;
 
-var contains = require('../../lib/rules/contains');
-
-var charsets = contains.charsets;
+var contains = require('../../dist/lib/rules/contains').default;
+var { charsets } = require('../../dist/lib/rules/contains');
 
 var specialCharactersRegexp = charsets.specialCharacters;
 

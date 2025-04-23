@@ -1,6 +1,7 @@
+var _ = require('../../dist/lib/helper').default;
 var expect = require('chai').expect;
 
-var identicalChars = require('../../lib/rules/identicalChars');
+var identicalChars = require('../../dist/lib/rules/identicalChars').default;
 
 function identicalCharsMessage (x, verified) {
   var a = (new Array(x+2)).join('a');

@@ -49,6 +49,7 @@ FooRule.prototype.missing = function (options, password) {
   return explain;
 };
 
+var { PasswordPolicy } = require('../dist/lib/policy');
 
 var fooOnlyPolicy = new PasswordPolicy({noFoo: {count: 3}}, {noFoo: new FooRule()});
 

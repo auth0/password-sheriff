@@ -1,6 +1,6 @@
 var expect = require('chai').expect;
 
-var createPolicy = require('../../index');
+var createPolicy = require('../../dist/index').default;
 
 var fairPolicyDescription = '* At least 8 characters in length\n' +
   '* Should contain:\n' +

@@ -1,6 +1,6 @@
 var expect = require('chai').expect;
 
-var createPolicy = require('../../index');
+var createPolicy = require('../../dist/index').default;
 
 var nonePolicyDescription = '* Non-empty password required';
 

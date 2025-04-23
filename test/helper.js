@@ -1,5 +1,5 @@
 var expect = require('chai').expect;
-var _ = require('../lib/helper');
+var _ = require('../dist/lib/helper').default;
 
 describe('helper', function () {
   it('should validate if it is a number', function() {

@@ -1,6 +1,7 @@
+var _ = require('../../dist/lib/helper').default;
 var expect = require('chai').expect;
 
-var length = require('../../lib/rules/length');
+var length = require('../../dist/lib/rules/length').default;
 
 function nonEmptyMsg(verified) {
   var d = {message: 'Non-empty password required', code: 'nonEmpty'};
