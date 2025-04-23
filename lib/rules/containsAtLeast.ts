@@ -1,14 +1,24 @@
-var _ = require('../helper');
+import _ from '../helper';
+import { Rule, RuleOptions, RuleDescription } from '../types';
+import { charsets } from './contains';
 
-var contains = require('./contains');
+interface ContainsExpression {
+  explain(): RuleDescription;
+  test(password: string): boolean;
+}
 
-function createIntroMessage() {
+interface ContainsAtLeastOptions extends RuleOptions {
+  atLeast: number;
+  expressions: ContainsExpression[];
+}
+
+function createIntroMessage(): string {
   return 'At least %d of the following %d types of characters:';
 }
 
-module.exports = {
+const containsAtLeastRule: Rule = {
   // TODO validate atLeast to be a number > 0 and expressions to be a list of at least 1
-  validate: function (options) {
+  validate(options: ContainsAtLeastOptions): boolean {
     if (!_.isObject(options)) {
       throw new Error('options should be an object');
     }
@@ -25,7 +35,7 @@ module.exports = {
       throw new Error('expressions length should be greater than atLeast');
     }
 
-    var ok = options.expressions.every(function (expression) {
+    const ok = options.expressions.every((expression) => {
       return _.isFunction(expression.explain) && _.isFunction(expression.test);
     });
 
@@ -35,42 +45,44 @@ module.exports = {
 
     return true;
   },
-  explain: function (options) {
+  explain(options: ContainsAtLeastOptions): RuleDescription {
     return {
       message: createIntroMessage(),
       code: 'containsAtLeast',
       format: [options.atLeast, options.expressions.length],
-      items: options.expressions.map(function (x) { return x.explain(); })
+      items: options.expressions.map((x) => x.explain())
     };
   },
-  missing: function (options, password) {
-    var expressions = options.expressions && options.expressions.map(function (expression) {
-      var explained = expression.explain();
+  missing(options: ContainsAtLeastOptions, password: string): RuleDescription {
+    const expressions = options.expressions && options.expressions.map((expression) => {
+      const explained = expression.explain();
       explained.verified = expression.test(password);
       return explained;
     });
 
-    var verifiedCount = expressions.reduce(function (val, ex) { return val + !!ex.verified; }, 0);
-    var verified = verifiedCount >= options.atLeast;
+    const verifiedCount = expressions.reduce((val, ex) => val + (ex.verified ? 1 : 0), 0);
+    const verified = verifiedCount >= options.atLeast;
 
     return {
       message: createIntroMessage(),
       code: 'containsAtLeast',
       format: [options.atLeast, options.expressions.length],
       items: expressions,
-      verified: verified
+      verified
     };
   },
-  assert: function (options, password) {
+  assert(options: ContainsAtLeastOptions, password: string): boolean {
     if (!password) {
       return false;
     }
 
-    var workingExpressions = options.expressions.filter(function (expression) {
+    const workingExpressions = options.expressions.filter((expression) => {
       return expression.test(password);
     });
 
     return workingExpressions.length >= options.atLeast;
-  },
-  charsets: contains.charsets
+  }
 };
+
+export { charsets };
+export default containsAtLeastRule;

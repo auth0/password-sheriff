@@ -10,6 +10,17 @@ Node.js (and browserify supported) library to enforce password policies.
 npm install password-sheriff
 ```
 
+## TypeScript Support
+
+This package is written in TypeScript and includes type definitions. You can use it in your TypeScript projects like this:
+
+```typescript
+import createPasswordPolicy from 'password-sheriff';
+
+const policy = createPasswordPolicy('good');
+const isValid = policy.check('myPassword123!');
+```
+
 ## Usage
 
 ```js

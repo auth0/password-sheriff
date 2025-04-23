@@ -1,10 +1,9 @@
-var _ = require('../../lib/helper');
+var _ = require('../../dist/lib/helper').default;
 
 var expect = require('chai').expect;
 
-var containsAtLeast = require('../../lib/rules/containsAtLeast');
-
-var charsets = containsAtLeast.charsets;
+var containsAtLeast = require('../../dist/lib/rules/containsAtLeast').default;
+var { charsets } = require('../../dist/lib/rules/contains');
 
 function createMissingEntry(x, y, items, verified) {
   var d = {

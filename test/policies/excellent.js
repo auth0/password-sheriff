@@ -1,6 +1,6 @@
 var expect = require('chai').expect;
 
-var createPolicy = require('../../index');
+var createPolicy = require('../../dist/index').default;
 
 var excellentPolicyDescription = '* At least 10 characters in length\n' +
   '* At least 3 of the following 4 types of characters:\n' +

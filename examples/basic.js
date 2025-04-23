@@ -1,8 +1,8 @@
 var assert = require('assert');
 
-var format = require('../lib/helper').format;
+var format = require('../dist/lib/helper').default.format;
 
-var PasswordPolicy = require('..').PasswordPolicy;
+var { PasswordPolicy } = require('../dist/lib/policy');
 
 // Create a length password policy
 var lengthPolicy = new PasswordPolicy({length: {minLength: 6}});

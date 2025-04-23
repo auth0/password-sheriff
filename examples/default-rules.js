@@ -1,6 +1,6 @@
 var assert = require('assert');
 
-var PasswordPolicy = require('..').PasswordPolicy;
+var { PasswordPolicy } = require('../dist/lib/policy');
 
 /* The default Password Sheriff rules are:
  *  * length
@@ -35,7 +35,7 @@ assert.equal(true, lengthPolicy.check('foobar'));
  * OWASP Password Policy recommendation document).
  */
 
-var charsets = require('../lib/rules/contains').charsets;
+var { charsets } = require('../dist/lib/rules/contains');
 
 // var lowerCase         = charsets.lowerCase;
 // var specialCharacters = charsets.specialCharacters;
@@ -61,7 +61,7 @@ assert.equal(true, containsPolicy.check('B9'));
  * groups.
  */
 
-var charsets = require('../lib/rules/containsAtLeast').charsets;
+var { charsets } = require('../dist/lib/rules/containsAtLeast');
 
 var lowerCase         = charsets.lowerCase;
 // var specialCharacters = charsets.specialCharacters;

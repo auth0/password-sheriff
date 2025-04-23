@@ -6,10 +6,9 @@
  *
  * @param {String} msg Descriptive message of the error
  */
-function PasswordPolicyError(msg) {
-  var err = Error.call(this, msg);
-  err.name = 'PasswordPolicyError';
-  return err;
+export class PasswordPolicyError extends Error {
+  constructor(msg: string) {
+    super(msg);
+    this.name = 'PasswordPolicyError';
+  }
 }
-
-module.exports = PasswordPolicyError;
