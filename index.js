@@ -95,8 +95,6 @@ module.exports = function (policyName) {
     toString: function () {
       return policy.toString();
     },
-
-    _policy: policy,
   };
 };
 
@@ -106,95 +104,62 @@ module.exports.createRulesFromAuth0Config = createRulesFromAuth0Config;
 
 module.exports.charsets = charsets;
 
-module.exports.getDefaultConfig = function () {
-  return {
-    min_length: 15,
-    character_types: [],
-    "3of4_character_types": false,
-    identical_characters: "disallow",
-    sequential_characters: "disallow",
-  };
-};
-
 /**
  * @typedef {Object} Auth0PasswordConfig
- * @property {Object} [password_options] - Password options configuration
- * @property {Object} [password_options.complexity] - Password complexity settings
- * @property {number} [password_options.complexity.min_length] - Minimum password length (1-72)
- * @property {Array<'uppercase'|'lowercase'|'number'|'special'>} [password_options.complexity.character_types] - Required character types
- * @property {boolean} [password_options.complexity['3of4_character_types']] - Whether to require 3 out of 4 character types (requires all 4 types to be specified)
- * @property {'allow'|'disallow'} [password_options.complexity.identical_characters] - Whether to allow >2 identical consecutive characters
- * @property {'allow'|'disallow'} [password_options.complexity.sequential_characters] - Whether to allow >2 sequential characters
+ * @property {number} [min_length] - Minimum password length (1-72)
+ * @property {Array<'uppercase'|'lowercase'|'number'|'special'>} [character_types] - Required character types
+ * @property {boolean} ['3of4_character_types'] - Whether to require 3 out of 4 character types (requires all 4 types to be specified)
+ * @property {'allow'|'disallow'} [identical_characters] - Whether to allow >2 identical consecutive characters
  */
 
 /**
- * Translates from the auth0 connection.options.password_options
- * config format to the internal PasswordPolicy rules format
+ * Translates from the auth0 connection configuration format
+ * to the internal PasswordPolicy rules format
  *
  * @param {Auth0PasswordConfig} config - Auth0 connection configuration object
  * @returns {Object} Rules configuration object that can be passed to PasswordPolicy constructor
  */
-function createRulesFromAuth0Config(config) {
-  // Handle empty config - return rules for 'none' policy
-  if (!config || Object.keys(config).length === 0) {
-    return { length: { minLength: 1 } };
-  }
-
+function createRulesFromAuth0Config(config = {}) {
   var internalConfig = {};
 
-  // Extract complexity configuration
-  var complexity =
-    config.password_options && config.password_options.complexity;
-  if (!complexity) {
-    // If no complexity is specified, return rules for 'none' policy
-    return { length: { minLength: 1 } };
-  }
-
-  // Apply defaults only for fields not explicitly specified
-  var defaults = module.exports.getDefaultConfig();
-  var normalizedComplexity = {
-    min_length:
-      complexity.min_length !== undefined
-        ? complexity.min_length
-        : Object.keys(complexity).length === 0
-        ? defaults.min_length
-        : undefined,
-    character_types: complexity.character_types || [],
-    "3of4_character_types":
-      complexity["3of4_character_types"] !== undefined
-        ? complexity["3of4_character_types"]
-        : false,
-    identical_characters:
-      complexity.identical_characters !== undefined
-        ? complexity.identical_characters
-        : Object.keys(complexity).length === 0
-        ? defaults.identical_characters
-        : "allow",
-    sequential_characters:
-      complexity.sequential_characters !== undefined
-        ? complexity.sequential_characters
-        : Object.keys(complexity).length === 0
-        ? defaults.sequential_characters
-        : "allow",
+  // Apply defaults for any missing values
+  var defaults = {
+    min_length: 15,
+    character_types: [],
+    "3of4_character_types": false,
+    identical_characters: "disallow",
   };
 
+  var normalizedConfig = {
+    min_length: config.min_length ?? defaults.min_length,
+    character_types: config.character_types ?? defaults.character_types,
+    "3of4_character_types": config["3of4_character_types"] ?? defaults["3of4_character_types"],
+    identical_characters: config.identical_characters ?? defaults.identical_characters,
+  };
+
+  // Validate min_length is within acceptable range
+  if (normalizedConfig.min_length < 1 || normalizedConfig.min_length > 72) {
+    throw new Error(
+      "min_length must be between 1 and 72"
+    );
+  }
+
   // Handle min_length
-  if (normalizedComplexity.min_length !== undefined) {
-    internalConfig.length = { minLength: normalizedComplexity.min_length };
+  if (normalizedConfig.min_length !== undefined) {
+    internalConfig.length = { minLength: normalizedConfig.min_length };
   }
 
   // Handle character_types and 3of4_character_types
-  var requiredTypes = normalizedComplexity.character_types || [];
-  var require3of4 = normalizedComplexity["3of4_character_types"];
+  var requiredTypes = normalizedConfig.character_types || [];
+  var require3of4 = normalizedConfig["3of4_character_types"];
 
   // Validate 3of4_character_types prerequisite
   if (require3of4) {
-    var allFourTypes = ["lowercase", "uppercase", "number", "special"];
-    var hasAllFour = allFourTypes.every(function (type) {
+    var hasAllFourTypes = ["lowercase", "uppercase", "number", "special"].every(function (type) {
       return requiredTypes.includes(type);
     });
 
-    if (!hasAllFour) {
+    if (!hasAllFourTypes) {
       throw new Error(
         "3of4_character_types can only be used when all four character types (lowercase, uppercase, number, special) are selected"
       );
@@ -204,28 +169,27 @@ function createRulesFromAuth0Config(config) {
   if (requiredTypes.length > 0 || require3of4) {
     var expressions = [];
 
-    // Map character types to expressions
-    if (requiredTypes.includes("lowercase") || require3of4) {
-      expressions.push(lowerCase);
-    }
-    if (requiredTypes.includes("uppercase") || require3of4) {
-      expressions.push(upperCase);
-    }
-    if (requiredTypes.includes("number") || require3of4) {
-      expressions.push(numbers);
-    }
-    if (requiredTypes.includes("special") || require3of4) {
-      expressions.push(specialCharacters);
-    }
-
     if (require3of4) {
       // Use containsAtLeast with 3 out of 4
       internalConfig.containsAtLeast = {
         atLeast: 3,
-        expressions: expressions,
+        expressions: [lowerCase, upperCase, numbers, specialCharacters],
       };
-    } else if (requiredTypes.length > 0) {
-      // Use contains to require all specified types
+    } else {
+      // Map character types to expressions
+      if (requiredTypes.includes("lowercase")) {
+        expressions.push(lowerCase);
+      }
+      if (requiredTypes.includes("uppercase")) {
+        expressions.push(upperCase);
+      }
+      if (requiredTypes.includes("number")) {
+        expressions.push(numbers);
+      }
+      if (requiredTypes.includes("special")) {
+        expressions.push(specialCharacters);
+      }
+
       internalConfig.contains = {
         expressions: expressions,
       };
@@ -233,16 +197,9 @@ function createRulesFromAuth0Config(config) {
   }
 
   // Handle identical_characters - convert "allow"/"disallow" to internal format
-  if (normalizedComplexity.identical_characters === "disallow") {
+  if (normalizedConfig.identical_characters === "disallow") {
     internalConfig.identicalChars = { max: 2 };
   }
-  // If "allow", we don't add the rule (no restriction)
-
-  // Handle sequential_characters - convert "allow"/"disallow" to internal format
-  if (normalizedComplexity.sequential_characters === "disallow") {
-    internalConfig.sequentialChars = { max: 2 };
-  }
-  // If "allow", we don't add the rule (no restriction)
 
   return internalConfig;
 }
