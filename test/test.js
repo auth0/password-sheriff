@@ -1,7 +1,7 @@
 var expect = require('chai').expect;
 
 var createPolicy = require('../index');
-var { PasswordPolicy, createRulesFromAuth0Config } = createPolicy;
+var { PasswordPolicy, createRulesFromSimpleConfig } = createPolicy;
 
 describe('password-sheriff', function () {
 
@@ -47,7 +47,7 @@ describe('password-sheriff', function () {
     });
   });
 
-  describe("createRulesFromAuth0Config helper", function () {
+  describe("createRulesFromSimpleConfig helper", function () {
     describe("min_length", function () {
       it("should test min_length from 1 to 72", function () {
         var auth0Config1 = {
@@ -55,7 +55,7 @@ describe('password-sheriff', function () {
           identical_characters: "allow",
         };
         var policy1 = new PasswordPolicy(
-          createRulesFromAuth0Config(auth0Config1)
+          createRulesFromSimpleConfig(auth0Config1)
         );
         expect(policy1.check("a")).to.be.equal(true);
         expect(policy1.check("")).to.be.equal(false);
@@ -65,7 +65,7 @@ describe('password-sheriff', function () {
           identical_characters: "allow",
         };
         var policy72 = new PasswordPolicy(
-          createRulesFromAuth0Config(auth0Config72)
+          createRulesFromSimpleConfig(auth0Config72)
         );
         var longPassword = "x".repeat(72);
         expect(policy72.check(longPassword)).to.be.equal(true);
@@ -81,7 +81,7 @@ describe('password-sheriff', function () {
           min_length: 4, // Explicit short length to focus on character type testing
         };
         var policy = new PasswordPolicy(
-          createRulesFromAuth0Config(auth0Config)
+          createRulesFromSimpleConfig(auth0Config)
         );
         expect(policy.check("aB1!")).to.be.equal(true);
         expect(policy.check("ab1!")).to.be.equal(false); // missing uppercase
@@ -97,7 +97,7 @@ describe('password-sheriff', function () {
           min_length: 3,
         };
         var policy = new PasswordPolicy(
-          createRulesFromAuth0Config(auth0Config)
+          createRulesFromSimpleConfig(auth0Config)
         );
         expect(policy.check("aB1")).to.be.equal(true);
         expect(policy.check("aB")).to.be.equal(false);
@@ -109,7 +109,7 @@ describe('password-sheriff', function () {
             character_types: ["lowercase", "uppercase"],
             "3of4_character_types": true,
           };
-          createRulesFromAuth0Config(auth0Config);
+          createRulesFromSimpleConfig(auth0Config);
         }).to.throw(
           "3of4_character_types can only be used when all four character types (lowercase, uppercase, number, special) are selected"
         );
@@ -122,7 +122,7 @@ describe('password-sheriff', function () {
           identical_characters: "disallow",
         };
         var policy = new PasswordPolicy(
-          createRulesFromAuth0Config(auth0Config)
+          createRulesFromSimpleConfig(auth0Config)
         );
         expect(policy.check("aaabxyzuvwqrstu")).to.be.equal(false); // has 'aaa'
         expect(policy.check("aabxyzuvwqrstuv")).to.be.equal(true); // only 'aa'
@@ -133,7 +133,7 @@ describe('password-sheriff', function () {
           identical_characters: "allow",
         };
         var policy = new PasswordPolicy(
-          createRulesFromAuth0Config(auth0Config)
+          createRulesFromSimpleConfig(auth0Config)
         );
         expect(policy.check("aaab" + "x".repeat(11))).to.be.equal(true);
       });
@@ -143,7 +143,7 @@ describe('password-sheriff', function () {
       it("should apply default values when not specified", function () {
         var auth0Config = {};
         var policy = new PasswordPolicy(
-          createRulesFromAuth0Config(auth0Config)
+          createRulesFromSimpleConfig(auth0Config)
         );
         expect(policy.check("short")).to.be.equal(false); // too short (< 15)
         expect(policy.check("123456789012345")).to.be.equal(true); // exactly 15, no identical chars
@@ -156,7 +156,7 @@ describe('password-sheriff', function () {
           identical_characters: "allow",
         };
         var policy = new PasswordPolicy(
-          createRulesFromAuth0Config(auth0Config)
+          createRulesFromSimpleConfig(auth0Config)
         );
 
         expect(policy.check("aaaaa")).to.be.equal(true); // 5 chars, identical allowed

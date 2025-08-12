@@ -100,12 +100,12 @@ module.exports = function (policyName) {
 
 module.exports.PasswordPolicy = PasswordPolicy;
 
-module.exports.createRulesFromAuth0Config = createRulesFromAuth0Config;
+module.exports.createRulesFromSimpleConfig = createRulesFromSimpleConfig;
 
 module.exports.charsets = charsets;
 
 /**
- * @typedef {Object} Auth0PasswordConfig
+ * @typedef {Object} SimplePasswordConfig
  * @property {number} [min_length] - Minimum password length (1-72)
  * @property {Array<'uppercase'|'lowercase'|'number'|'special'>} [character_types] - Required character types
  * @property {boolean} ['3of4_character_types'] - Whether to require 3 out of 4 character types (requires all 4 types to be specified)
@@ -113,13 +113,14 @@ module.exports.charsets = charsets;
  */
 
 /**
- * Translates from the auth0 connection configuration format
- * to the internal PasswordPolicy rules format
+ * Creates a PasswordPolicy rules configuration from a simplified configuration format.
+ * This provides an easier way to configure password policies without needing to
+ * understand the internal rule structure.
  *
- * @param {Auth0PasswordConfig} config - Auth0 connection configuration object
+ * @param {SimplePasswordConfig} config - Simplified password configuration object
  * @returns {Object} Rules configuration object that can be passed to PasswordPolicy constructor
  */
-function createRulesFromAuth0Config(config = {}) {
+function createRulesFromSimpleConfig(config = {}) {
   var internalConfig = {};
 
   // Apply defaults for any missing values
