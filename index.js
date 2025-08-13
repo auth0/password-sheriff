@@ -1,10 +1,41 @@
-
 var charsets = require('./lib/rules/contains').charsets;
 
 var upperCase         = charsets.upperCase;
 var lowerCase         = charsets.lowerCase;
 var numbers           = charsets.numbers;
 var specialCharacters = charsets.specialCharacters;
+
+/**
+ * Enum for character types
+ * @constant
+ * @type {Object}
+ */
+var CHARACTER_TYPES = {
+  LOWERCASE: "lowercase",
+  UPPERCASE: "uppercase", 
+  NUMBER: "number",
+  SPECIAL: "special"
+};
+
+/**
+ * @typedef {Object} PasswordOptions
+ * @property {number} [min_length=15] - Minimum password length (1-72)
+ * @property {Array<'uppercase'|'lowercase'|'number'|'special'>} [character_types=[]] - Required character types
+ * @property {boolean} [require_3of4_character_types=false] - Whether to require 3 out of 4 character types (requires all 4 types to be specified)
+ * @property {'allow'|'disallow'} [identical_characters='disallow'] - Whether to allow >2 identical consecutive characters
+ */
+
+/**
+ * Default values for password options
+ * @constant
+ * @type {PasswordOptions}
+ */
+var DEFAULT_PASSWORD_OPTIONS = {
+  min_length: 15,
+  character_types: [],
+  require_3of4_character_types: false,
+  identical_characters: "disallow",
+};
 
 var PasswordPolicy = require('./lib/policy');
 
@@ -100,69 +131,51 @@ module.exports = function (policyName) {
 
 module.exports.PasswordPolicy = PasswordPolicy;
 
-module.exports.createRulesFromSimpleConfig = createRulesFromSimpleConfig;
+module.exports.createRulesFromOptions = createRulesFromOptions;
 
 module.exports.charsets = charsets;
 
 /**
- * @typedef {Object} SimplePasswordConfig
- * @property {number} [min_length] - Minimum password length (1-72)
- * @property {Array<'uppercase'|'lowercase'|'number'|'special'>} [character_types] - Required character types
- * @property {boolean} ['3of4_character_types'] - Whether to require 3 out of 4 character types (requires all 4 types to be specified)
- * @property {'allow'|'disallow'} [identical_characters] - Whether to allow >2 identical consecutive characters
- */
-
-/**
- * Creates a PasswordPolicy rules configuration from a simplified configuration format.
+ * Creates a PasswordPolicy rules configuration from a simplified password options format.
  * This provides an easier way to configure password policies without needing to
  * understand the internal rule structure.
  *
- * @param {SimplePasswordConfig} config - Simplified password configuration object
+ * @param {PasswordOptions} options - Simplified password options object
  * @returns {Object} Rules configuration object that can be passed to PasswordPolicy constructor
  */
-function createRulesFromSimpleConfig(config = {}) {
-  var internalConfig = {};
+function createRulesFromOptions(options = {}) {
+  var rules = {};
 
   // Apply defaults for any missing values
-  var defaults = {
-    min_length: 15,
-    character_types: [],
-    "3of4_character_types": false,
-    identical_characters: "disallow",
-  };
-
-  var normalizedConfig = {
-    min_length: config.min_length ?? defaults.min_length,
-    character_types: config.character_types ?? defaults.character_types,
-    "3of4_character_types": config["3of4_character_types"] ?? defaults["3of4_character_types"],
-    identical_characters: config.identical_characters ?? defaults.identical_characters,
+  var normalizedOptions = {
+    min_length: options.min_length ?? DEFAULT_PASSWORD_OPTIONS.min_length,
+    character_types: options.character_types ?? DEFAULT_PASSWORD_OPTIONS.character_types,
+    require_3of4_character_types: options.require_3of4_character_types ?? DEFAULT_PASSWORD_OPTIONS.require_3of4_character_types,
+    identical_characters: options.identical_characters ?? DEFAULT_PASSWORD_OPTIONS.identical_characters,
   };
 
   // Validate min_length is within acceptable range
-  if (normalizedConfig.min_length < 1 || normalizedConfig.min_length > 72) {
+  if (normalizedOptions.min_length < 1 || normalizedOptions.min_length > 72) {
     throw new Error(
       "min_length must be between 1 and 72"
     );
   }
 
   // Handle min_length
-  if (normalizedConfig.min_length !== undefined) {
-    internalConfig.length = { minLength: normalizedConfig.min_length };
-  }
+  rules.length = { minLength: normalizedOptions.min_length };
 
-  // Handle character_types and 3of4_character_types
-  var requiredTypes = normalizedConfig.character_types || [];
-  var require3of4 = normalizedConfig["3of4_character_types"];
+  var requiredTypes = normalizedOptions.character_types;
+  var require3of4 = normalizedOptions.require_3of4_character_types;
 
-  // Validate 3of4_character_types prerequisite
+  // Validate require_3of4_character_types prerequisite
   if (require3of4) {
-    var hasAllFourTypes = ["lowercase", "uppercase", "number", "special"].every(function (type) {
+    var hasAllFourTypes = Object.values(CHARACTER_TYPES).every(function (type) {
       return requiredTypes.includes(type);
     });
 
     if (!hasAllFourTypes) {
       throw new Error(
-        "3of4_character_types can only be used when all four character types (lowercase, uppercase, number, special) are selected"
+        `require_3of4_character_types can only be used when all four character types (${Object.values(CHARACTER_TYPES).join(", ")}) are selected`
       );
     }
   }
@@ -172,35 +185,35 @@ function createRulesFromSimpleConfig(config = {}) {
 
     if (require3of4) {
       // Use containsAtLeast with 3 out of 4
-      internalConfig.containsAtLeast = {
+      rules.containsAtLeast = {
         atLeast: 3,
         expressions: [lowerCase, upperCase, numbers, specialCharacters],
       };
     } else {
       // Map character types to expressions
-      if (requiredTypes.includes("lowercase")) {
+      if (requiredTypes.includes(CHARACTER_TYPES.LOWERCASE)) {
         expressions.push(lowerCase);
       }
-      if (requiredTypes.includes("uppercase")) {
+      if (requiredTypes.includes(CHARACTER_TYPES.UPPERCASE)) {
         expressions.push(upperCase);
       }
-      if (requiredTypes.includes("number")) {
+      if (requiredTypes.includes(CHARACTER_TYPES.NUMBER)) {
         expressions.push(numbers);
       }
-      if (requiredTypes.includes("special")) {
+      if (requiredTypes.includes(CHARACTER_TYPES.SPECIAL)) {
         expressions.push(specialCharacters);
       }
 
-      internalConfig.contains = {
+      rules.contains = {
         expressions: expressions,
       };
     }
   }
 
   // Handle identical_characters - convert "allow"/"disallow" to internal format
-  if (normalizedConfig.identical_characters === "disallow") {
-    internalConfig.identicalChars = { max: 2 };
+  if (normalizedOptions.identical_characters === "disallow") {
+    rules.identicalChars = { max: 2 };
   }
 
-  return internalConfig;
+  return rules;
 }
