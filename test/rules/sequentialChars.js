@@ -1,14 +1,14 @@
-var expect = require('chai').expect;
+const expect = require('chai').expect;
 
-var sequentialChars = require('../../lib/rules/sequentialChars');
+const sequentialChars = require('../../lib/rules/sequentialChars');
 
-function sequentialCharsMessage (x, verified) {
-  var example = '';
-  for (var i = 0; i < x + 1; i++) {
+function sequentialCharsMessage(x, verified) {
+  let example = '';
+  for (let i = 0; i < x + 1; i++) {
     example += String.fromCharCode('a'.charCodeAt(0) + i);
   }
-  var msg = 'No more than %d sequential characters (e.g., "%s" not allowed)';
-  var d = {message: msg, format: [x, example], code: 'sequentialChars'};
+  const msg = 'No more than %d sequential characters (e.g., "%s" not allowed)';
+  const d = {message: msg, format: [x, example], code: 'sequentialChars'};
   if (verified !== undefined) {
     d.verified = verified;
   }
@@ -22,10 +22,9 @@ function sequentialCharsValidate (max) {
 }
 
 describe('"sequential characters" rule', function () {
-
   describe('validate', function () {
     it ('should fail if max is not a number or less than 2', function () {
-      var errorRegex = /max should be a number greater than or equal to 2/;
+      const errorRegex = /max should be a number greater than or equal to 2/;
 
       expect(sequentialCharsValidate(false)).to.throw(errorRegex);
       expect(sequentialCharsValidate(0)).to.throw(errorRegex);
@@ -33,6 +32,7 @@ describe('"sequential characters" rule', function () {
       expect(sequentialCharsValidate('hello')).to.throw(errorRegex);
       expect(sequentialCharsValidate(undefined)).to.throw(errorRegex);
     });
+
     it('should work otherwise', function () {
       expect(sequentialCharsValidate(2)).not.to.throw();
       expect(sequentialCharsValidate(5)).not.to.throw();
@@ -49,9 +49,11 @@ describe('"sequential characters" rule', function () {
     it('should inform that the rule is not verified for ascending sequences', function () {
       expect(sequentialChars.missing({max: 3}, 'abcd')).to.be.deep.equal(sequentialCharsMessage(3, false));
     });
+
     it('should inform that the rule is not verified for descending sequences', function () {
       expect(sequentialChars.missing({max: 3}, 'dcba')).to.be.deep.equal(sequentialCharsMessage(3, false));
     });
+
     it('should work otherwise', function () {
       expect(sequentialChars.missing({max: 3}, 'abce')).to.be.deep.equal(sequentialCharsMessage(3, true));
       expect(sequentialChars.missing({max: 3}, 'acbd')).to.be.deep.equal(sequentialCharsMessage(3, true));
@@ -61,18 +63,33 @@ describe('"sequential characters" rule', function () {
   });
 
   describe('assert', function () {
-    it('should return false on ascending fail', function () {
+    it('should return false on ascending letters', function () {
       expect(sequentialChars.assert({max: 2}, 'abcd')).to.be.equal(false);
     });
-    it('should return false on descending fail', function () {
+
+    it('should return false on descending letters', function () {
       expect(sequentialChars.assert({max: 2}, 'dcba')).to.be.equal(false);
     });
-    it('should return true on success', function () {
+
+    it('should return true on success for letters', function () {
       expect(sequentialChars.assert({max: 3}, 'abce')).to.be.equal(true);
       expect(sequentialChars.assert({max: 3}, 'acbd')).to.be.equal(true);
       expect(sequentialChars.assert({max: 2}, 'abd')).to.be.equal(true);
     });
 
+    it('should return false on ascending digits', function () {
+      expect(sequentialChars.assert({max: 2}, '012')).to.be.equal(false);
+    });
+
+    it('should return false on descending digits', function () {
+      expect(sequentialChars.assert({max: 2}, '654')).to.be.equal(false);
+    });
+
+    it('should return true on success for digits', function () {
+      expect(sequentialChars.assert({max: 3}, '0324')).to.be.equal(true);
+      expect(sequentialChars.assert({max: 3}, '5321')).to.be.equal(true);
+      expect(sequentialChars.assert({max: 2}, '134')).to.be.equal(true);
+    });
   });
 });
 
