@@ -7,7 +7,7 @@ function sequentialCharsMessage(x, verified) {
   for (let i = 0; i < x + 1; i++) {
     example += String.fromCharCode('a'.charCodeAt(0) + i);
   }
-  const msg = 'No more than %d sequential characters (e.g., "%s" not allowed)';
+  const msg = 'No more than %d sequential alphanumeric characters (e.g., "%s" not allowed)'; // updated wording
   const d = {message: msg, format: [x, example], code: 'sequentialChars'};
   if (verified !== undefined) {
     d.verified = verified;
@@ -21,7 +21,7 @@ function sequentialCharsValidate (max) {
   };
 }
 
-describe('"sequential characters" rule', function () {
+describe('"sequential characters" rule (alphanumeric only)', function () {
   describe('validate', function () {
     it ('should fail if max is not a number or less than 2', function () {
       const errorRegex = /max should be a number greater than or equal to 2/;
@@ -91,5 +91,26 @@ describe('"sequential characters" rule', function () {
       expect(sequentialChars.assert({max: 2}, '134')).to.be.equal(true);
     });
   });
-});
 
+  describe('non-alphanumeric', function () {
+    it('should treat hyphen as a break in sequence', function () {
+      expect(sequentialChars.assert({max: 2}, 'ab-cd')).to.be.equal(true); // 'ab' len2 ok, '-' break, 'cd' len2 ok
+    });
+
+    it('should treat underscore as a break in sequence', function () {
+      expect(sequentialChars.assert({max: 2}, 'ab_cd')).to.be.equal(true);
+    });
+
+    it('should break at leading non-alphanumeric', function () {
+      expect(sequentialChars.assert({max: 2}, '#ab')).to.be.equal(true); // only 'ab' len2
+    });
+
+    it('should still fail if post-break sequence exceeds max', function () {
+      expect(sequentialChars.assert({max: 2}, '#abc')).to.be.equal(false); // '#'(break) then 'abc' len3 > max
+    });
+
+    it('should allow separated digit sequences each within limit', function () {
+      expect(sequentialChars.assert({max: 2}, '01-23')).to.be.equal(true); // '01' len2 ok, '-' break, '23' len2 ok
+    });
+  });
+});

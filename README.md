@@ -113,7 +113,7 @@ Password Sheriff includes some default rules:
   });
   ```
 
-  * `sequentialChars`: Passwords should not contain more than `max` sequential (increasing or decreasing) characters.
+  * `sequentialChars`: Passwords should not contain more than `max` sequential (increasing or decreasing) alphanumeric characters.
   ```js
   var sequentialCharsPolicy = new PasswordPolicy({
     sequentialChars: { max: 3 }
