@@ -113,4 +113,22 @@ describe('"sequential characters" rule (alphanumeric only)', function () {
       expect(sequentialChars.assert({max: 2}, '01-23')).to.be.equal(true); // '01' len2 ok, '-' break, '23' len2 ok
     });
   });
+
+  describe('preceding non-alphanumeric with +/- 1 charCode', function () {
+    it('should not count preceding "`" (charCode 96) as part of ascending sequence starting at a (97)', function () {
+      expect(sequentialChars.assert({max: 2}, '`ab')).to.be.equal(true); // only 'ab' counted, length 2 OK
+    });
+
+    it('should fail only due to actual sequence after break, not including preceding "`"', function () {
+      expect(sequentialChars.assert({max: 2}, '`abc')).to.be.equal(false); // 'abc' len3 > max; '`' ignored
+    });
+
+    it('should not count preceding "{" (charCode 123) as part of descending sequence starting at z (122)', function () {
+      expect(sequentialChars.assert({max: 2}, '{zy')).to.be.equal(true); // 'zy' len2 OK
+    });
+
+    it('should fail when descending sequence after break exceeds max, excluding preceding "{"', function () {
+      expect(sequentialChars.assert({max: 2}, '{zyx')).to.be.equal(false); // 'zyx' len3 > max
+    });
+  });
 });
