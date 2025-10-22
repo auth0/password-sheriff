@@ -1,5 +1,6 @@
 # Password Sheriff
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fauth0%2Fpassword-sheriff.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fauth0%2Fpassword-sheriff?ref=badge_shield)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/auth0/password-sheriff)
 
 
 Node.js (and browserify supported) library to enforce password policies.
