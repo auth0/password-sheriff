@@ -1,14 +1,14 @@
-const expect = require('chai').expect;
+var expect = require('chai').expect;
 
-const sequentialChars = require('../../lib/rules/sequentialChars');
+var sequentialChars = require('../../lib/rules/sequentialChars');
 
 function sequentialCharsMessage(x, verified) {
-  let example = '';
-  for (let i = 0; i < x + 1; i++) {
+  var example = '';
+  for (var i = 0; i < x + 1; i++) {
     example += String.fromCharCode('a'.charCodeAt(0) + i);
   }
-  const msg = 'No more than %d sequential alphanumeric characters (e.g., "%s" not allowed)'; // updated wording
-  const d = {message: msg, format: [x, example], code: 'sequentialChars'};
+  var msg = 'No more than %d sequential alphanumeric characters (e.g., "%s" not allowed)'; // updated wording
+  var d = {message: msg, format: [x, example], code: 'sequentialChars'};
   if (verified !== undefined) {
     d.verified = verified;
   }
