@@ -114,6 +114,16 @@ Password Sheriff includes some default rules:
   });
   ```
 
+  * `sequentialChars`: Passwords should not contain more than `max` sequential (increasing or decreasing) alphanumeric characters.
+  ```js
+  var sequentialCharsPolicy = new PasswordPolicy({
+    sequentialChars: { max: 3 }
+  });
+  // 'abcd' -> false (4 sequential > 3)
+  // 'dcba' -> false (4 sequential > 3)
+  // 'abce' -> true  (sequence breaks)
+  ```
+
 See the [default-rules example](examples/default-rules.js) section for more information.
 
 ## Issue Reporting

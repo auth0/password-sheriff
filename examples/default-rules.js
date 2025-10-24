@@ -7,6 +7,7 @@ var PasswordPolicy = require('..').PasswordPolicy;
  *  * contains
  *  * containsAtLeast
  *  * identicalChars
+ *  * sequentialChars
 */
 
 /*
@@ -101,3 +102,18 @@ assert.equal(true, identitcalCharsPolicy.check('helllo'));
 assert.equal(false, identitcalCharsPolicy.check('hellllo'));
 assert.equal(false, identitcalCharsPolicy.check('123333334'));
 
+/*
+ * sequentialChars
+ *
+ * Parameters: max :: Integer
+ *
+ * Passwords should not contain more than `max` sequential (increasing or decreasing) characters.
+ */
+var sequentialCharsPolicy = new PasswordPolicy({
+  sequentialChars: { max: 3 }
+});
+
+assert.equal(true, sequentialCharsPolicy.check('abce'));      // sequence breaks before exceeding 3
+assert.equal(true, sequentialCharsPolicy.check('cbaZ'));      // descending sequence of length 3 allowed
+assert.equal(false, sequentialCharsPolicy.check('abcd'));     // ascending length 4 not allowed
+assert.equal(false, sequentialCharsPolicy.check('dcba1'));    // descending length 4 not allowed
