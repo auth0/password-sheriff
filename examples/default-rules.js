@@ -8,6 +8,7 @@ var PasswordPolicy = require('..').PasswordPolicy;
  *  * containsAtLeast
  *  * identicalChars
  *  * sequentialChars
+ *  * maxLength
 */
 
 /*
@@ -117,3 +118,21 @@ assert.equal(true, sequentialCharsPolicy.check('abce'));      // sequence breaks
 assert.equal(true, sequentialCharsPolicy.check('cbaZ'));      // descending sequence of length 3 allowed
 assert.equal(false, sequentialCharsPolicy.check('abcd'));     // ascending length 4 not allowed
 assert.equal(false, sequentialCharsPolicy.check('dcba1'));    // descending length 4 not allowed
+
+/*
+ * maxLength
+ *
+ * Parameters: maxBytes :: Integer
+ *
+ * Passwords must not exceed `maxBytes` bytes when encoded in UTF-8. Multi-byte characters (e.g. emoji) count as multiple bytes.
+ */
+var maxLengthPolicy = new PasswordPolicy({
+  maxLength: { maxBytes: 8 }
+});
+
+assert.equal(true,  maxLengthPolicy.check('a'.repeat(8)));    // 8 bytes OK
+assert.equal(false, maxLengthPolicy.check('a'.repeat(9)));    // 9 bytes > 8
+assert.equal(true,  maxLengthPolicy.check('😀😀'));            // 2 emojis * 4 bytes = 8 OK
+assert.equal(false, maxLengthPolicy.check('😀😀😀'));          // 12 bytes > 8
+assert.equal(true,  maxLengthPolicy.check('éééé'));           // each 'é' 2 bytes => 8 bytes OK
+assert.equal(false, maxLengthPolicy.check('ééééé'));          // 10 bytes > 8
