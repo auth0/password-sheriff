@@ -89,6 +89,11 @@ describe('"maximum password length (bytes)" rule', function () {
       expect(maxLength.assert({maxBytes: 2}, cjk)).to.be.equal(false);
     });
 
+    it('should handle multi byte password (4 bytes each)', function () {
+      expect(maxLength.assert({maxBytes: 4}, '🚀')).to.be.equal(true);
+      expect(maxLength.assert({maxBytes: 3}, '🚀')).to.be.equal(false);
+    });
+
     it('should pass exactly at boundary with mixed ascii + emoji', function () {
       var ascii = 'a'.repeat(68); // 68 bytes
       var emoji = '😀'; // 4 bytes -> total 72 bytes
