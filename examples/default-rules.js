@@ -124,7 +124,7 @@ assert.equal(false, sequentialCharsPolicy.check('dcba1'));    // descending leng
  *
  * Parameters: maxBytes :: Integer
  *
- * Passwords must not exceed `maxBytes` bytes when encoded in UTF-8. Multi-byte characters (e.g. emoji) count as multiple bytes.
+ * Passwords should not exceed `maxBytes` bytes when encoded in UTF-8. Multi-byte characters (e.g. emoji) count as multiple bytes.
  */
 var maxLengthPolicy = new PasswordPolicy({
   maxLength: { maxBytes: 8 }

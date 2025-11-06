@@ -124,7 +124,7 @@ Password Sheriff includes some default rules:
   // 'abce' -> true  (sequence breaks)
   ```
 
-  * `maxLength`: Passwords must not exceed `maxBytes` bytes when encoded in UTF-8. Multi‑byte characters (e.g. emoji) count as multiple bytes.
+  * `maxLength`: Passwords should not exceed `maxBytes` bytes when encoded in UTF-8. Multi‑byte characters (e.g. emoji) count as multiple bytes.
   ```js
   var maxLengthPolicy = new PasswordPolicy({
     maxLength: { maxBytes: 8 }
@@ -135,7 +135,7 @@ Password Sheriff includes some default rules:
   // '😀' (4 bytes) x 3    -> false (12 bytes > 8)
   // 'é'.length === 1 but Buffer.byteLength('é','utf8') === 2 (counts bytes)
   ```
-  
+
 See the [default-rules example](examples/default-rules.js) section for more information.
 
 ## Issue Reporting
