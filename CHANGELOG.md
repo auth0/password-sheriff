@@ -1,5 +1,11 @@
 # Change Log
 
+## [v1.3.0](https://github.com/auth0/password-sheriff/tree/v1.3.0) (2025-11-07)
+[Full Changelog](https://github.com/auth0/password-sheriff/compare/v1.2.0...v1.3.0)
+
+**Added**
+- feat: supporting max length in bytes check [\#65](https://github.com/auth0/password-sheriff/pull/65) ([pnkrishnamurthy-okta](https://github.com/pnkrishnamurthy-okta))
+
 ## [v1.2.0](https://github.com/auth0/password-sheriff/tree/v1.2.0) (2025-10-31)
 [Full Changelog](https://github.com/auth0/password-sheriff/compare/v1.1.1...v1.2.0)
 
