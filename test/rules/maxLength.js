@@ -121,7 +121,7 @@ describe('"maximum password length (bytes)" rule', function () {
     it('should return true when multi-byte password within limit (fallback)', function () {
       expect(maxLength.assert({maxBytes: 8}, '😀😀')).to.equal(true); // 8 bytes
     });
-    it.only('should return false when multi-byte password exceeds limit (fallback)', function () {
+    it('should return false when multi-byte password exceeds limit (fallback)', function () {
       expect(maxLength.assert({maxBytes: 7}, '😀😀')).to.equal(false); // 8 bytes
     });
   });
