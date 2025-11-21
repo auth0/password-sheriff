@@ -8,7 +8,7 @@ var charsets = containsAtLeast.charsets;
 
 function createMissingEntry(x, y, items, verified) {
   var d = {
-    message: 'At least %d of the following %d types of characters:',
+    message: 'Contain at least %d of the following %d types of characters:',
     code: 'containsAtLeast',
     format: [x, y],
     items: items
