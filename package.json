@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "chai": "^4.3.4",
-    "mocha": "^9.1.1"
+    "mocha": "^11.7.5"
   },
   "scripts": {
     "test": "mocha --recursive",
