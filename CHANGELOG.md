@@ -1,5 +1,17 @@
 # Change Log
 
+## [v2.0.0](https://github.com/auth0/password-sheriff/tree/v2.0.0) (2025-12-03)
+[Full Changelog](https://github.com/auth0/password-sheriff/compare/v1.3.1...v2.0.0)
+
+**Added**
+- feat: [BREAKING CHANGE] revert fix grammar on containsAtleast message [\#69](https://github.com/auth0/password-sheriff/pull/69) ([pnkrishnamurthy-okta](https://github.com/pnkrishnamurthy-okta))
+
+## [v1.3.1](https://github.com/auth0/password-sheriff/tree/v1.3.1) (2025-11-21)
+[Full Changelog](https://github.com/auth0/password-sheriff/compare/v1.3.0...v1.3.1)
+
+**Added**
+- feat: support for max length in browser [\#68](https://github.com/auth0/password-sheriff/pull/68) ([pnkrishnamurthy-okta](https://github.com/pnkrishnamurthy-okta))
+
 ## [v1.3.0](https://github.com/auth0/password-sheriff/tree/v1.3.0) (2025-11-07)
 [Full Changelog](https://github.com/auth0/password-sheriff/compare/v1.2.0...v1.3.0)
 

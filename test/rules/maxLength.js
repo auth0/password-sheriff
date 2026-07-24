@@ -103,4 +103,118 @@ describe('"maximum password length (bytes)" rule', function () {
       expect(maxLength.assert({maxBytes: 71}, total)).to.be.equal(false);
     });
   });
+
+  describe('assert (Buffer undefined fallback)', function () {
+    var originalBuffer;
+    before(function () { originalBuffer = global.Buffer; global.Buffer = undefined; });
+    after(function () { global.Buffer = originalBuffer; });
+
+    it('should return false when password missing (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 5}, '')).to.equal(false);
+    });
+    it('should return true when length within limit (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 5}, '12345')).to.equal(true);
+    });
+    it('should return false when length exceeds limit (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 5}, '123456')).to.equal(false);
+    });
+    it('should return true when multi-byte password within limit (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 8}, '😀😀')).to.equal(true); // 8 bytes
+    });
+    it('should return false when multi-byte password exceeds limit (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 7}, '😀😀')).to.equal(false); // 8 bytes
+    });
+  });
+
+  describe('unicode byte length tests (Buffer undefined fallback)', function () {
+    var originalBuffer;
+    before(function () { originalBuffer = global.Buffer; global.Buffer = undefined; });
+    after(function () { global.Buffer = originalBuffer; });
+
+    it('should distinguish precomposed vs decomposed character (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 2}, 'é')).to.equal(true);   // 2 bytes
+      expect(maxLength.assert({maxBytes: 2}, 'e\u0301')).to.equal(false); // 3 bytes
+    });
+    it('should handle CJK characters (3 bytes) (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 3}, '字')).to.equal(true);
+      expect(maxLength.assert({maxBytes: 2}, '字')).to.equal(false);
+    });
+    it('should handle 4-byte emoji (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 4}, '🚀')).to.equal(true);
+      expect(maxLength.assert({maxBytes: 3}, '🚀')).to.equal(false);
+    });
+    it('should pass exactly at boundary with mixed ascii + emoji (fallback)', function () {
+      var ascii = 'a'.repeat(68); // 68 bytes
+      var emoji = '😀'; // 4 bytes -> total 72 bytes
+      var total = ascii + emoji; // 68 + 4 = 72 bytes
+      expect(maxLength.assert({maxBytes: 72}, total)).to.equal(true);
+      expect(maxLength.assert({maxBytes: 71}, total)).to.equal(false);
+    });
+  });
+
+  describe('assert (TextEncoder & Buffer undefined fallback)', function () {
+    var originalTextEncoder;
+    var originalBuffer;
+    before(function () { 
+      originalTextEncoder = global.TextEncoder; 
+      originalBuffer = global.Buffer; 
+      global.TextEncoder = undefined; 
+      global.Buffer = undefined; 
+    });
+    after(function () { 
+      global.TextEncoder = originalTextEncoder; 
+      global.Buffer = originalBuffer; 
+    });
+
+    it('should return false when password missing (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 5}, '')).to.equal(false);
+    });
+    it('should return true when length within limit (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 5}, '12345')).to.equal(true);
+    });
+    it('should return false when length exceeds limit (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 5}, '123456')).to.equal(false);
+    });
+    it('should return true when multi-byte password within limit (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 8}, '😀😀')).to.equal(true); // 8 bytes
+    });
+    it('should return false when multi-byte password exceeds limit (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 7}, '😀😀')).to.equal(false); // 8 bytes
+    });
+  });
+
+  describe('unicode byte length tests (TextEncoder & Buffer undefined fallback)', function () {
+    var originalTextEncoder;
+    var originalBuffer;
+     before(function () { 
+      originalTextEncoder = global.TextEncoder; 
+      originalBuffer = global.Buffer; 
+      global.TextEncoder = undefined; 
+      global.Buffer = undefined; 
+    });
+    after(function () { 
+      global.TextEncoder = originalTextEncoder; 
+      global.Buffer = originalBuffer; 
+    });
+
+    it('should distinguish precomposed vs decomposed character (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 2}, 'é')).to.equal(true);   // 2 bytes
+      expect(maxLength.assert({maxBytes: 2}, 'e\u0301')).to.equal(false); // 3 bytes
+    });
+    it('should handle CJK characters (3 bytes) (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 3}, '字')).to.equal(true);
+      expect(maxLength.assert({maxBytes: 2}, '字')).to.equal(false);
+    });
+    it('should handle 4-byte emoji (fallback)', function () {
+      expect(maxLength.assert({maxBytes: 4}, '🚀')).to.equal(true);
+      expect(maxLength.assert({maxBytes: 3}, '🚀')).to.equal(false);
+    });
+    it('should pass exactly at boundary with mixed ascii + emoji (fallback)', function () {
+      var ascii = 'a'.repeat(68); // 68 bytes
+      var emoji = '😀'; // 4 bytes -> total 72 bytes
+      var total = ascii + emoji; // 68 + 4 = 72 bytes
+      expect(maxLength.assert({maxBytes: 72}, total)).to.equal(true);
+      expect(maxLength.assert({maxBytes: 71}, total)).to.equal(false);
+    });
+  });
 });
